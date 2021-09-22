@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Payment Form(To Card)</title>
+    <link rel="stylesheet"
+          href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+          crossorigin="anonymous">
+    <link href="../static/css/style.css" th:href="@{/css/style.css}" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <div class="container mt-4" style="width: 30em; border: 2px solid #999; border-radius: 5px">
+        <h2 th:text="#{paymToCrCard}">Payment to credit card</h2>
+        <form th:action="@{/app/payment/getToCardConfPaymentForm}" th:method="GET" th:object="${cardPaymentPrepDto}">
+            <input type="hidden" th:field="*{senderMoneyAccountId}">
+            <label th:for="cardNum" th:text="#{recCardNum}">Receiver's card number:</label>
+            <input class="form-control" type="text" th:field="*{receiverCreditCardNumber}" th:id="cardNum">
+            <br/>
+            <label th:for="payeSum" th:text="#{sumToPayLabel}">Sum:</label>
+            <input class="form-control" type="text" th:field="*{payedSum}" th:id="payedSum">
+            <br/>
+            <label th:for="assignment" th:text="#{assignmentLabel}">Assignment:</label>
+            <input class="form-control" type="text" th:field="*{assignment}" th:id="assignment">
+            <br/>
+            <input class="btn vtn-success" type="submit" th:value="#{payBtn}">
+        </form>
+    </div>
+</body>
+</html>

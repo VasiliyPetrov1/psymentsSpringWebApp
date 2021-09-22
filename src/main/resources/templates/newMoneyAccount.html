@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+<head>
+    <meta charset="UTF-8">
+    <title>New Money Account</title>
+    <link rel="stylesheet"
+          href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+          crossorigin="anonymous">
+    <link href="../static/css/style.css" th:href="@{/css/style.css}" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+<nav class="navbar navbar-light navbar-expand-lg bg-dark fixed-top text-white" style="height:5em">
+    <a th:href="@{/app}" class="navbar-brand">
+        <img th:src="@{/images/logo.jpg}" alt="logo" style="width: 80px; height:70px">
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#my-nav">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" style="font-size: 20px" id="my-nav">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+                <a class="nav-link text-white" th:href="@{/app}" th:text="#{homeLink}">Home</a>
+            </li>
+            <li class="nav-item" th:if="${visitorRoles.contains('ADMIN') || visitorRoles.contains('USER')}">
+                <a class="nav-link text-white" th:href="@{/app/personalRoom}"
+                   th:text="#{personalRoomLink}">My Personal Room</a>
+            </li>
+            <li th:if="${visitorRoles.contains('ADMIN')}" class="nav-item">
+                <a class="nav-link text-white" th:href="@{/app/user}" th:text="#{usersLink}">Users</a>
+            </li>
+            <li th:if="${visitorRoles.contains('ADMIN')}" class="nav-item">
+                <a class="nav-link text-white" th:href="@{/app/moneyAccount}" th:text="#{moneyAccsLink}">Money Accounts</a>
+            </li>
+            <li th:if="${visitorRoles.contains('ADMIN')}" class="nav-item">
+                <a class="nav-link text-white" th:href="@{/app/payment}" th:text="#{paymentsLink}">Payments</a>
+            </li>
+            <li th:if="${visitorRoles.contains('ADMIN')}" class="nav-item">
+                <a class="nav-link text-white" th:href="@{/app/order}" th:text="#{ordersLink}">Orders</a>
+            </li>
+        </ul>
+        <a class="nav-link text-white" th:href="@{'?locale=en'}">EN</a>
+        <a class="nav-link text-white" th:href="@{'?locale=uk'}">UKR</a>
+        <a th:if="${!visitorRoles.contains('ADMIN') && !visitorRoles.contains('USER')}"
+           th:href="@{/app/registration}" class="btn btn-primary mr-2 ml-2" th:text="#{signUpLink}">Sign Up</a>
+        <a th:href="@{/app/login}" class="btn btn-primary mr-2 ml-2" th:text="#{signInLink}"
+           th:if="${!visitorRoles.contains('ADMIN') && !visitorRoles.contains('USER')}">Sign In</a>
+        <form th:if="${visitorRoles.contains('ADMIN') || visitorRoles.contains('USER')}" method="post" th:action="@{/app/logout}">
+            <input type="submit" class="btn btn-primary mr-2 ml-2" th:value="#{logOutLink}">
+        </form>
+    </div>
+</nav>
+    <div class="container" style="width: 50em; border: 2px solid #999; border-radius: 5px; margin-top: 6.5em">
+        <h2 th:text="#{crtNewMonAcc}">Create new money account</h2>
+        <p th:text="${moneyAccountConfDto.getNumber()}"></p>
+        <div class="row mb-1">
+            <div class="col">
+                <form th:method="POST"
+                th:action="@{/app/moneyAccount}">
+                    <p th:text="#{entMonAccNm}">Enter the name of money account</p>
+                    <input th:type="hidden" th:name="moneyAccountNum" th:value="${moneyAccountConfDto.getNumber()}">
+                    <input th:type="text" th:name="moneyAccountName" th:id="moneyAccountNameId">
+                    <br/>
+                    <input th:type="Submit" th:value="#{crtNewMonAcc}" class="btn btn-success">
+                </form>
+            </div>
+            <div class="col">
+                <form th:method="PATCH"
+                    th:action="@{/app/moneyAccount/cancelCreation}">
+                    <input type="Submit" th:value="#{cancel}" class="button btn-warning">
+                </form>
+            </div>
+        </div>
+        </div>
+    </div>
+</body>
+</html>

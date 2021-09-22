@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Payment Details</title>
+    <link rel="stylesheet"
+          href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+          crossorigin="anonymous">
+    <link href="../static/css/style.css" th:href="@{/css/style.css}" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <div class="container mt-2" style="width: 30em; border: 1px solid #666; border-radius: 3px">
+        <p class="cRed" th:text="${paymentDetailsMessage}"></p>
+        <div th:if="${paymentDetailsMessage} == null">
+        <h3 th:text="#{paymOfNum} + ${paymentDetailsDto.getNumber()} + #{details}">Payment Details</h3>
+            <div class="row pl-1 pr-1 mt-1 mb-1">
+                <div class="col">
+                    <p class="emphText" th:text="#{statusLabel}">Status:</p>
+                    <p th:if="${paymentDetailsDto.isPrepared()}">PREPARED</p>
+                    <p th:if="${paymentDetailsDto.isSent()}">SENT</p>
+                </div>
+                <div class="col">
+                    <p class="emphText" th:text="#{senderLabel}">Sender:</p>
+                    <p th:text="${paymentDetailsDto.getSenderAccountName()}"></p>
+                </div>
+                <div class="col">
+                    <p class="emphText" th:text="#{receiverLabel}">Receiver:</p>
+                    <p th:text="${paymentDetailsDto.getReceiverAccountName()}"></p>
+                </div>
+            </div>
+            <div class="row pl-1 pr-1 mt-1 mb-1">
+                <div class="col">
+                    <p class="emphText" th:text="#{movedSumLabel}">Moved Sum:</p>
+                    <p th:text="${paymentDetailsDto.getMovedSum()}"></p>
+                </div>
+                <div class="col">
+                    <p class="emphText" th:text="#{comissionLabel}">Comission:</p>
+                    <p th:text="${paymentDetailsDto.getComission()}"></p>
+                </div>
+                <div class="col">
+                    <p class="emphText" th:text="#{totalLabel}">Total:</p>
+                    <p th:text="${paymentDetailsDto.getPayedSum()}"></p>
+                </div>
+            </div>
+            <div class="row pl-1 pr-1 mt-1 mb-1">
+                <div class="col">
+                    <p class="emphText" th:text="#{assignmentLabel}">Assignment:</p>
+                    <p th:text="${paymentDetailsDto.getAssignment()}"></p>
+                </div>
+                <div class="col">
+                    <p class="emphText" th:text="#{timeLabel}">Time:</p>
+                    <p th:text="${paymentDetailsDto.getTimeString()}"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

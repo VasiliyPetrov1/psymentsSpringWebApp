@@ -1,0 +1,41 @@
+
+.mainAnnouncement {
+    color: bisque;
+    font-weight: 600;
+    text-align: center;
+}
+
+.crCardText {
+    color: white;
+    font-family: "Roboto Thin";
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.roundButton {
+    width: 50px;
+    height: 50px;
+    border-radius: 20px;
+    background-size: cover;
+    border: 1px solid #788;
+}
+
+.paymentSysLogo{
+    width: 80px;
+    height: 50px;
+    background-size: cover;
+}
+
+.emphText {
+    font-weight: 700;
+}
+
+.cRed {
+    font-weight: 500;
+    color: red;
+}
+
+.cGreen {
+    font-weight: 500;
+    color: #283;
+}

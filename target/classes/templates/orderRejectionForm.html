@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Order Rejection Form</title>
+    <link rel="stylesheet"
+          href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+          crossorigin="anonymous">
+    <link th:href="@{/static/css/style.css}" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+<div class="container mt-5" style="max-width: 700px; border: 2px solid #999; border-radius: 5px">
+    <h1 th:text="#{rejOrd}">Reject order</h1>
+    <h3 th:text="#{giveReasToCl}">Give reason to client</h3>
+    <br/>
+    <form th:method="PATCH" th:action="@{/app/order/{id}/reject(id=${orderId})}" class="form-group">
+        <input type="hidden" name="ownerId" th:value="${ownerId}">
+        <textarea th:if="${errors.get('messageErrors') != null}" class="form-control is-invalid"
+                  rows="8" name="rejectMessage" th:placeholder="${message}"></textarea>
+        <textarea th:if="${errors.get('messageErrors') == null}" class="form-control is-valid"
+                  rows="8" name="rejectMessage" th:placeholder="${message}"></textarea>
+        <div th:if="${errors.get('messageErrors') != null}" class="alert alert-danger" role="alert"
+         th:each="error : ${errors.get('messageErrors')}">
+            <span th:text="${error}"></span>
+            <br>
+        </div>
+        <div class="form-group row justify-content-end mt-2 mr-1">
+            <a th:href="@{/app/order}" class="btn btn-info mr-1 ml-1" th:text="#{cancel}">Cancel</a>
+            <input type="submit" th:value="#{rejBtn}" class="btn btn-warning mr-1 ml-1">
+        </div>
+    </form>
+</div>
+</body>
+</html>

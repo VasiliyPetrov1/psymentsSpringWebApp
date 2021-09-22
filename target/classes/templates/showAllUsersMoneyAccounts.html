@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+<head>
+    <meta charset="UTF-8">
+    <title>All Your Money Accounts</title>
+    <link rel="stylesheet"
+          href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+          crossorigin="anonymous">
+    <link href="../static/css/style.css" th:href="@{/css/style.css}" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+<nav class="navbar navbar-light navbar-expand-lg bg-dark fixed-top text-white" style="height:5em">
+    <a th:href="@{/app}" class="navbar-brand">
+        <img th:src="@{/images/logo.jpg}" alt="logo" style="width: 80px; height:70px">
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#my-nav">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" style="font-size: 20px" id="my-nav">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+                <a class="nav-link text-white" th:href="@{/app}" th:text="#{homeLink}">Home</a>
+            </li>
+            <li class="nav-item" th:if="${visitorRoles.contains('ADMIN') || visitorRoles.contains('USER')}">
+                <a class="nav-link text-white" th:href="@{/app/personalRoom}"
+                   th:text="#{personalRoomLink}">My Personal Room</a>
+            </li>
+            <li th:if="${visitorRoles.contains('ADMIN')}" class="nav-item">
+                <a class="nav-link text-white" th:href="@{/app/user}" th:text="#{usersLink}">Users</a>
+            </li>
+            <li th:if="${visitorRoles.contains('ADMIN')}" class="nav-item">
+                <a class="nav-link text-white" th:href="@{/app/moneyAccount}" th:text="#{moneyAccsLink}">Money Accounts</a>
+            </li>
+            <li th:if="${visitorRoles.contains('ADMIN')}" class="nav-item">
+                <a class="nav-link text-white" th:href="@{/app/payment}" th:text="#{paymentsLink}">Payments</a>
+            </li>
+            <li th:if="${visitorRoles.contains('ADMIN')}" class="nav-item">
+                <a class="nav-link text-white" th:href="@{/app/order}" th:text="#{ordersLink}">Orders</a>
+            </li>
+        </ul>
+        <a class="nav-link text-white" th:href="@{'/app/moneyAccount/ofUser/' + ${userId} + '/page/' + ${curPage} +
+         '?sortParameter=' + ${sortParameter} + '&locale=en'}">EN</a>
+        <a class="nav-link text-white" th:href="@{'/app/moneyAccount/ofUser/' + ${userId} + '/page/' + ${curPage} +
+         '?sortParameter=' + ${sortParameter} + '&locale=uk'}">UKR</a>
+        <a th:if="${!visitorRoles.contains('ADMIN') && !visitorRoles.contains('USER')}"
+           th:href="@{/app/registration}" class="btn btn-primary mr-2 ml-2" th:text="#{signUpLink}">Sign Up</a>
+        <a th:href="@{/app/login}" class="btn btn-primary mr-2 ml-2" th:text="#{signInLink}"
+           th:if="${!visitorRoles.contains('ADMIN') && !visitorRoles.contains('USER')}">Sign In</a>
+        <form th:if="${visitorRoles.contains('ADMIN') || visitorRoles.contains('USER')}" method="post" th:action="@{/app/logout}">
+            <input type="submit" class="btn btn-primary mr-2 ml-2" th:value="#{logOutLink}">
+        </form>
+    </div>
+</nav>
+    <div class="container"
+         style="width: 70em; border: 2px solid #999; border-radius: 5px; margin-top: 6.5em">
+        <h2 th:text="#{allYourMonAccs}">All Your Money Accounts:</h2>
+        <div class="row justify-content-start">
+        <div class="col-4 mt-2 pr-3 pl-3" th:each="moneyAccountDto : ${moneyAccountDtos}">
+            <div class="container" style="border: 1px solid #666; border-radius: 3px">
+            <h3 th:text="#{monAcc}">Money Account</h3>
+            <p th:text="${moneyAccountDto.getNumber()}"></p>
+            <p th:text="${moneyAccountDto.getName()}"></p>
+            <p th:text="${moneyAccountDto.getSum()} + 'UAH'"></p>
+            <p th:if="${moneyAccountDto.isActive()}">ACTIVE</p>
+            <p th:if="${moneyAccountDto.isBlocked()}">BLOCKED</p>
+            <p th:if="${moneyAccountDto.isUnlockRequested()}">UNLOCK REQUESTED</p>
+            <div class="row justify-content-start align-items-center ml-1 mt-2 mb-2">
+                <form th:if="${moneyAccountDto.isCanBeLocked() and moneyAccountDto.isActive()}"
+                    th:action="@{/app/moneyAccount/{moneyAccId}/block(moneyAccId = ${moneyAccountDto.getId()})}" th:method="PATCH">
+                    <input type="submit" th:value="#{blockBtn}" class="button btn-danger">
+                </form>
+                <form th:if="${moneyAccountDto.isBlocked()}"
+                    th:action="@{/app/moneyAccount/{moneyAccId}/askToUnlock(moneyAccId = ${moneyAccountDto.getId()})}" th:method="PATCH">
+                    <input type="submit" th:value="#{askUnlckBtn}" class="button btn-info">
+                </form>
+                <a class="button btn-primary ml-2"
+                   th:href="@{/app/payment/{moneyAccId}(moneyAccId = ${moneyAccountDto.getId()})}" th:text="#{paymentsLink}">Payments</a>
+                <a th:if="${moneyAccountDto.isActive()}"
+                   th:href="@{/app/payment/getToAccountPaymentForm/{senderAccId}(senderAccId = ${moneyAccountDto.getId()})}">
+                    <div class="roundButton ml-2 mr-1" style="background-image: url(/images/moneyAccountLogo.png)"></div>
+                </a>
+            </div>
+            </div>
+        </div>
+        </div>
+        <div class="mt-2" style="display: flex; justify-content: start; align-items: center">
+            <form class="row justify-content-start" th:method="get"
+                  th:action="@{/app/moneyAccount/ofUser/{userId}/page/1(userId=${userId})}">
+                <div class="col-7" style="display: flex; justify-content: space-between; align-items: center">
+                    <label for="sortParamId" th:text="#{sortBy}">Sort by</label>
+                    <select name="sortParameter" class="form-control ml-1" id="sortParamId" style="width: 14em">
+                        <option th:value="number" th:text="#{byNum}">By Number</option>
+                        <option th:value="name" th:text="#{byName}">By Name</option>
+                        <option th:value="sum" th:text="#{bySum}">By Remained Sum</option>
+                    </select>
+                </div>
+                <div class="col-2 mr-1 mt-2">
+                    <input type="submit" th:value="#{applyBtn}" class="btn btn-success">
+                </div>
+            </form>
+        </div>
+        <div th:if="${totalPages > 1}" class="container mt-3 mb-2" style="max-width:1300px; border: 2px solid #777; border-radius: 5px;
+     display: flex; align-items: center">
+            <div class="row col-sm-12" style="font-size:20px">
+                <div class="col-sm-3">
+                    <span th:text="#{totMonAccs}">Total Money Accounts:</span> [[${totalItems}]]
+                </div>
+                <div class="col-sm-3">
+                <span th:each="i: ${#numbers.sequence(1, totalPages)}">
+                    <form th:action="@{'/app/moneyAccount/ofUser/' + ${userId} + '/page/' + ${i}}" th:id="${i}" style="display: none">
+                        <input type="hidden" th:name="sortParameter" th:value="${sortParameter}">
+                    </form>
+                    <a th:if="${curPage != i}" th:href="@{/}"
+                       th:onclick="|document.getElementById('${i}').submit(); return false;|">[[${i}]]</a>
+                    <span th:unless="${curPage != i}">[[${i}]]</span> &nbsp; &nbsp;
+                </span>
+                </div>
+                <div class="col-sm-1">
+                    <form th:action="@{'/app/moneyAccount/ofUser/' + ${userId} + '/page/' + ${curPage + 1}}" id="next" style="display: none">
+                        <input type="hidden" th:name="sortParameter" th:value="${sortParameter}">
+                    </form>
+                    <a th:if="${curPage < totalPages}" th:href="@{/}"
+                       th:onclick="|document.getElementById('next').submit(); return false;|" th:text="#{nextLink}">Next</a>
+                    <span th:unless="${curPage < totalPages}" th:text="#{nextLink}">Next</span>
+                </div>
+                <div class="col-sm-1">
+                    <form th:action="@{'/app/moneyAccount/ofUser/' + ${userId} + '/page/' + ${totalPages}}" id="last" style="display: none">
+                        <input type="hidden" th:name="sortParameter" th:value="${sortParameter}">
+                    </form>
+                    <a th:if="${curPage < totalPages}" th:href="@{/}"
+                       th:onclick="|document.getElementById('last').submit(); return false;|" th:text="#{lastLink}">Last</a>
+                    <span th:unless="${curPage < totalPages}" th:text="#{lastLink}">Last</span>
+                </div>
+            </div>
+            <br/>
+        </div>
+    </div>
+</body>
+</html>

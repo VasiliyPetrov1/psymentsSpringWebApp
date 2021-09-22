@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Registration</title>
+    <link rel="stylesheet"
+          href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+          crossorigin="anonymous">
+    <link th:href="@{/static/css/style.css}" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+<div class="container mt-4" style="width: 20em; border: 2px solid #999; border-radius: 5px">
+    <form th:method="post" th:action="@{/app/registration}" th:object="${userRegDto}" class="form-group">
+        <label th:for="username" th:text="#{userNameLabel}">Enter name: </label>
+        <input th:if="${errors.get('usernameErrors') != null}" type="text" th:field="*{username}" class="form-control is-invalid" th:id="username" >
+        <input th:if="${errors.get('usernameErrors') == null}" type="text" th:field="*{username}" class="form-control is-valid" th:id="username" >
+        <div th:if="${errors.get('usernameErrors') != null}" class="alert alert-danger" role="alert"
+        th:each="error : ${errors.get('usernameErrors')}">
+            <span th:text="${error}"></span>
+            <br>
+        </div>
+        <br/>
+        <label th:for="email" th:text="#{emailLabel}">Enter email: </label>
+        <input th:if="${errors.get('emailErrors') != null}" type="text" th:field="*{email}" class="form-control is-invalid" th:id="email" >
+        <input th:if="${errors.get('emailErrors') == null}" type="text" th:field="*{email}" class="form-control is-valid" th:id="email">
+        <div th:if="${errors.get('emailErrors') != null}" class="alert alert-danger" role="alert"
+             th:each="error : ${errors.get('emailErrors')}">
+            <span th:text="${error}"></span>
+            <br>
+        </div>
+        <br/>
+        <label th:for="password" th:text="#{passwordLabel}">Enter password: </label>
+        <input th:if="${errors.get('passwordErrors') != null}" type="text" th:field="*{password}" class="form-control is-invalid" th:id="password" >
+        <input th:if="${errors.get('passwordErrors') == null}" type="text" th:field="*{password}" class="form-control is-valid" th:id="password">
+        <div th:if="${errors.get('passwordErrors') != null}" class="alert alert-danger" role="alert"
+             th:each="error : ${errors.get('passwordErrors')}">
+            <span th:text="${error}"></span>
+            <br>
+        </div>
+        <br/>
+        <div th:if="${addUserMessage != null}" class="alert alert-danger" role="alert">
+            <span th:text="${addUserMessage}"></span>
+        </div>
+        <input type="submit" th:value="#{reg}" class="btn btn-info">
+    </form>
+</div>
+<br/>
+</body>
+</html>

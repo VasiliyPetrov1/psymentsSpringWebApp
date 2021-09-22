@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+<head>
+    <meta charset="UTF-8">
+    <title>All Credit Cards</title>
+    <link rel="stylesheet"
+          href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+          crossorigin="anonymous">
+    <link href="../static/css/style.css" th:href="@{/css/style.css}" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+<nav class="navbar navbar-light navbar-expand-lg bg-dark fixed-top text-white" style="height:5em">
+    <a th:href="@{/app}" class="navbar-brand">
+        <img th:src="@{/images/logo.jpg}" alt="logo" style="width: 80px; height:70px">
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#my-nav">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" style="font-size: 20px" id="my-nav">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+                <a class="nav-link text-white" th:href="@{/app}" th:text="#{homeLink}">Home</a>
+            </li>
+            <li class="nav-item" th:if="${visitorRoles.contains('ADMIN') || visitorRoles.contains('USER')}">
+                <a class="nav-link text-white" th:href="@{/app/personalRoom}"
+                   th:text="#{personalRoomLink}">My Personal Room</a>
+            </li>
+            <li th:if="${visitorRoles.contains('ADMIN')}" class="nav-item">
+                <a class="nav-link text-white" th:href="@{/app/user}" th:text="#{usersLink}">Users</a>
+            </li>
+            <li th:if="${visitorRoles.contains('ADMIN')}" class="nav-item">
+                <a class="nav-link text-white" th:href="@{/app/moneyAccount}" th:text="#{moneyAccsLink}">Money Accounts</a>
+            </li>
+            <li th:if="${visitorRoles.contains('ADMIN')}" class="nav-item">
+                <a class="nav-link text-white" th:href="@{/app/payment}" th:text="#{paymentsLink}">Payments</a>
+            </li>
+            <li th:if="${visitorRoles.contains('ADMIN')}" class="nav-item">
+                <a class="nav-link text-white" th:href="@{/app/order}" th:text="#{ordersLink}">Orders</a>
+            </li>
+        </ul>
+        <a class="nav-link text-white" th:href="@{'?locale=en'}">EN</a>
+        <a class="nav-link text-white" th:href="@{'?locale=uk'}">UKR</a>
+        <a th:if="${!visitorRoles.contains('ADMIN') && !visitorRoles.contains('USER')}"
+           th:href="@{/app/registration}" class="btn btn-primary mr-2 ml-2" th:text="#{signUpLink}">Sign Up</a>
+        <a th:href="@{/app/login}" class="btn btn-primary mr-2 ml-2" th:text="#{signInLink}"
+           th:if="${!visitorRoles.contains('ADMIN') && !visitorRoles.contains('USER')}">Sign In</a>
+        <form th:if="${visitorRoles.contains('ADMIN') || visitorRoles.contains('USER')}" method="post" th:action="@{/app/logout}">
+            <input type="submit" class="btn btn-primary mr-2 ml-2" th:value="#{logOutLink}">
+        </form>
+    </div>
+</nav>
+    <div class="container" style="margin-top: 6.5em">
+        <h2 th:text="#{allCrCards}">All My Credit Cards:</h2>
+        <div class="row justify-content-start mt-2">
+        <div class="container mt-2 mb-2 mr-2 ml-2 pt-1 pb-1" style="width: 22em" th:each="curCardDto : ${creditCardDtos}">
+        <div class="card pr-2 pl-2 pt-1 pb-2 mt-2 mb-2" style="background-image: url(/images/space.png); background-size: cover;
+         width: 20em">
+            <p class="crCardText mt-2 mr-1 ml-1" th:text="${curCardDto.getNumber()}"></p>
+            <div class="row justify-content-between mt-2 mr-1 ml-1 crCardText">
+                <p th:text="${curCardDto.getCvv()}"></p>
+                <p th:text="${curCardDto.getExpireDate()}"></p>
+            </div>
+            <div class="row justify-content-between mt-2 mr-1 ml-1 crCardText">
+                <p th:text="${curCardDto.getSumAvailable()} + 'UAH'"></p>
+                <div th:if="${curCardDto.isVisa()}" class="paymentSysLogo mb-1"
+                     style="background-image: url(/images/visaLogo.png); background-size: cover"></div>
+                <div th:if="${curCardDto.isMasterCard()}"class="paymentSysLogo mb-1"
+                     style="background-image: url(/images/masterCardLogo.png); background-size: cover"></div>
+            </div>
+        </div>
+            <div class="row justify-content-start align-items-center ml-1 mt-2 mb-2">
+                <form th:method="GET"
+                      th:action="@{/app/moneyAccount/{moneyAccId}(moneyAccId = ${curCardDto.getMoneyAccountId()})}">
+                    <input type="submit" th:value="#{relAcc}" class="btn btn-primary mr-1 ml-1">
+                </form>
+                <form th:method="GET" th:action="@{/app/creditCard/putMoney/{cardId}(cardId = ${curCardDto.getId()})}">
+                    <input type="submit" th:value="#{putMon}" class="btn btn-success mr-1 ml-1">
+                </form>
+                <a th:href="@{/app/payment/getToCardPaymentForm/{senderAccId}(senderAccId = ${curCardDto.getMoneyAccountId()})}">
+                    <div class="roundButton ml-1 mr-1" style="background-image: url(/images/creditCardLogo.png)"></div>
+                </a>
+            </div>
+        </div>
+    </div>
+    </div>
+    <div th:if="${totalPages > 1}" class="container mt-3 mb-2" style="max-width:1300px; border: 2px solid #777; border-radius: 5px;
+     display: flex; align-items: center">
+        <div class="row col-sm-12" style="font-size:20px">
+            <div class="col-sm-3">
+                <span th:text="#{totCrCards}">Total Credit Cards:</span> [[${totalItems}]]
+            </div>
+            <div class="col-sm-3">
+                <span th:each="i: ${#numbers.sequence(1, totalPages)}">
+                    <a th:if="${curPage != i}" th:href="@{'/app/creditCard/ofUser/' + ${userId} + '/page/' + ${i}}">
+                        [[${i}]]
+                    </a>
+                    <span th:unless="${curPage != i}">[[${i}]]</span> &nbsp; &nbsp;
+                </span>
+            </div>
+            <div class="col-sm-1">
+                <a th:if="${curPage < totalPages}" th:href="@{'/app/creditCard/ofUser/' + ${userId} + '/page/'+ ${curPage + 1}}"
+                th:text="#{nextLink}">
+                    Next
+                </a>
+                <span th:unless="${curPage < totalPages}" th:text="#{nextLink}">Next</span>
+            </div>
+            <div class="col-sm-1">
+                <a th:if="${curPage < totalPages}" th:href="@{'/app/creditCard/ofUser/' + ${userId} + '/page/'+ ${totalPages}}"
+                th:text="#{lastLink}">
+                    Last
+                </a>
+                <span th:unless="${curPage < totalPages}" th:text="#{lastLink}">Last</span>
+            </div>
+        </div>
+        <br/>
+    </div>
+</body>
+</html>

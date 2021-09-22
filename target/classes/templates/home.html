@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Home</title>
+    <link rel="stylesheet"
+          href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+          crossorigin="anonymous">
+    <link href="../static/css/style.css" th:href="@{/css/style.css}" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="background-image: url(/images/bankBackground.jpg); background-size: cover">
+<nav class="navbar navbar-light navbar-expand-lg bg-dark fixed-top text-white" style="height:5em">
+    <a th:href="@{/app}" class="navbar-brand">
+        <img th:src="@{/images/logo.jpg}" alt="logo" style="width: 80px; height:70px">
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#my-nav">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" style="font-size: 20px" id="my-nav">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+                <a class="nav-link text-white" th:href="@{/app}" th:text="#{homeLink}">Home</a>
+            </li>
+            <li class="nav-item" th:if="${visitorRoles.contains('ADMIN') || visitorRoles.contains('USER')}">
+                <a class="nav-link text-white" th:href="@{/app/personalRoom}"
+                   th:text="#{personalRoomLink}">My Personal Room</a>
+            </li>
+            <li th:if="${visitorRoles.contains('ADMIN')}" class="nav-item">
+                <a class="nav-link text-white" th:href="@{/app/user}" th:text="#{usersLink}">Users</a>
+            </li>
+            <li th:if="${visitorRoles.contains('ADMIN')}" class="nav-item">
+                <a class="nav-link text-white" th:href="@{/app/moneyAccount}" th:text="#{moneyAccsLink}">Money Accounts</a>
+            </li>
+            <li th:if="${visitorRoles.contains('ADMIN')}" class="nav-item">
+                <a class="nav-link text-white" th:href="@{/app/payment}" th:text="#{paymentsLink}">Payments</a>
+            </li>
+            <li th:if="${visitorRoles.contains('ADMIN')}" class="nav-item">
+                <a class="nav-link text-white" th:href="@{/app/order}" th:text="#{ordersLink}">Orders</a>
+            </li>
+        </ul>
+        <a class="nav-link text-white" th:href="@{'?locale=en'}">EN</a>
+        <a class="nav-link text-white" th:href="@{'?locale=uk'}">UKR</a>
+        <a th:if="${!visitorRoles.contains('ADMIN') && !visitorRoles.contains('USER')}"
+           th:href="@{/app/registration}" class="btn btn-primary mr-2 ml-2" th:text="#{signUpLink}">Sign Up</a>
+        <a th:href="@{/app/login}" class="btn btn-primary mr-2 ml-2" th:text="#{signInLink}"
+           th:if="${!visitorRoles.contains('ADMIN') && !visitorRoles.contains('USER')}">Sign In</a>
+        <form th:if="${visitorRoles.contains('ADMIN') || visitorRoles.contains('USER')}" method="post" th:action="@{/app/logout}">
+            <input type="submit" class="btn btn-primary mr-2 ml-2" th:value="#{logOutLink}">
+        </form>
+    </div>
+</nav>
+    <div class="container" style="margin-top: 6.5em">
+        <h1 class="mainAnnouncement" th:text="#{mainAnnouncement}">
+            Welcome to our app. Register please and then move to your personal room.
+        </h1>
+    </div>
+</body>
+</html>

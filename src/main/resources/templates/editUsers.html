@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit User</title>
+    <link rel="stylesheet"
+          href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+          crossorigin="anonymous">
+    <link href="../static/css/style.css" th:href="@{/css/style.css}" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+<nav class="navbar navbar-light navbar-expand-lg bg-dark fixed-top text-white" style="height:5em">
+    <a th:href="@{/app}" class="navbar-brand">
+        <img th:src="@{/images/logo.jpg}" alt="logo" style="width: 80px; height:70px">
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#my-nav">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" style="font-size: 20px" id="my-nav">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+                <a class="nav-link text-white" th:href="@{/app}" th:text="#{homeLink}">Home</a>
+            </li>
+            <li class="nav-item" th:if="${visitorRoles.contains('ADMIN') || visitorRoles.contains('USER')}">
+                <a class="nav-link text-white" th:href="@{/app/personalRoom}"
+                   th:text="#{personalRoomLink}">My Personal Room</a>
+            </li>
+            <li th:if="${visitorRoles.contains('ADMIN')}" class="nav-item">
+                <a class="nav-link text-white" th:href="@{/app/user}" th:text="#{usersLink}">Users</a>
+            </li>
+            <li th:if="${visitorRoles.contains('ADMIN')}" class="nav-item">
+                <a class="nav-link text-white" th:href="@{/app/moneyAccount}" th:text="#{moneyAccsLink}">Money Accounts</a>
+            </li>
+            <li th:if="${visitorRoles.contains('ADMIN')}" class="nav-item">
+                <a class="nav-link text-white" th:href="@{/app/payment}" th:text="#{paymentsLink}">Payments</a>
+            </li>
+            <li th:if="${visitorRoles.contains('ADMIN')}" class="nav-item">
+                <a class="nav-link text-white" th:href="@{/app/order}" th:text="#{ordersLink}">Orders</a>
+            </li>
+        </ul>
+        <a class="nav-link text-white" th:href="@{'?locale=en'}">EN</a>
+        <a class="nav-link text-white" th:href="@{'?locale=uk'}">UKR</a>
+        <a th:if="${!visitorRoles.contains('ADMIN') && !visitorRoles.contains('USER')}"
+           th:href="@{/app/registration}" class="btn btn-primary mr-2 ml-2" th:text="#{signUpLink}">Sign Up</a>
+        <a th:href="@{/app/login}" class="btn btn-primary mr-2 ml-2" th:text="#{signInLink}"
+           th:if="${!visitorRoles.contains('ADMIN') && !visitorRoles.contains('USER')}">Sign In</a>
+        <form th:if="${visitorRoles.contains('ADMIN') || visitorRoles.contains('USER')}" method="post" th:action="@{/app/logout}">
+            <input type="submit" class="btn btn-primary mr-2 ml-2" th:value="#{logOutLink}">
+        </form>
+    </div>
+</nav>
+<div class="container" style="width: 600px; margin-top: 6.5em; border: 2px solid #999; border-radius: 5px;">
+<h1 th:text="#{userEditor}">User editor</h1>
+<p th:text="${updateUserMessage}">message</p>
+<form th:method="patch" th:action="@{/app/user/{id}(id=${userEditionDto.getId()})}" th:object="${userEditionDto}">
+    <input type="hidden" th:field="*{id}">
+    <label th:for="username" th:text="#{userNameLabel}">Usermame:</label>
+    <input th:if="${errors.get('usernameErrors') != null}" type="text" th:field="*{username}" class="form-control is-invalid" th:id="username" >
+    <input th:if="${errors.get('usernameErrors') == null}" type="text" th:field="*{username}" class="form-control is-valid" th:id="username" >
+    <div th:if="${errors.get('usernameErrors') != null}" class="alert alert-danger" role="alert"
+         th:each="error : ${errors.get('usernameErrors')}">
+        <span th:text="${error}"></span>
+        <br>
+    </div>
+    <label th:for="email" th:text="#{emailLabel}">Enter email: </label>
+    <input th:if="${errors.get('emailErrors') != null}" type="text" th:field="*{email}" class="form-control is-invalid" th:id="email" >
+    <input th:if="${errors.get('emailErrors') == null}" type="text" th:field="*{email}" class="form-control is-valid" th:id="email">
+    <div th:if="${errors.get('emailErrors') != null}" class="alert alert-danger" role="alert"
+         th:each="error : ${errors.get('emailErrors')}">
+        <span th:text="${error}"></span>
+        <br>
+    </div>
+    <div class="mt-1">
+        <label th:for="activeId" th:text="#{actLabel}">Active</label>
+        <input type="checkbox" th:field="*{active}" th:name="active"
+               th:id="activeId">
+    </div>
+    <div>
+        <label th:for="userId">USER</label>
+        <input type="checkbox" th:field="*{user}" th:name="user"
+               th:id="userId">
+        <label th:for="adminId">ADMIN</label>
+        <input type="checkbox" th:field="*{admin}" th:name="admin"
+               th:id="adminId">
+    </div>
+    <div th:if="${updateUserMessage != null}" class="alert alert-danger" role="alert">
+        <span th:text="${updateUserMessage}">message</span>
+    </div>
+    <div class="row mt-1 mb-1">
+        <div class="col-2">
+            <input type="submit" th:value="#{save}" class="btn btn-success">
+        </div>
+        <div class="col-2">
+            <a th:href="@{/app/user}" th:text="#{cancel}" class="btn btn-warning"></a>
+        </div>
+    </div>
+</form>
+</div>
+</body>
+</html>

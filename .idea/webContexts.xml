@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebContextManager">
+    <option name="state">
+      <map>
+        <entry key="file://$PROJECT_DIR$/src/main/resources/templates/home.html" value="file://$PROJECT_DIR$/src/main/resources/templates" />
+        <entry key="file://$PROJECT_DIR$/src/main/resources/templates/orderConfirmationForm.html" value="file://$PROJECT_DIR$/src/main/resources/templates" />
+        <entry key="file://$PROJECT_DIR$/src/main/resources/templates/personalRoom.html" value="file://$PROJECT_DIR$/src/main/resources/templates" />
+        <entry key="file://$PROJECT_DIR$/src/main/resources/templates/showAllMoneyAccounts.html" value="file://$PROJECT_DIR$/src/main/resources/templates" />
+        <entry key="file://$PROJECT_DIR$/src/main/resources/templates/showAllOrders.html" value="file://$PROJECT_DIR$/src/main/resources/templates" />
+        <entry key="file://$PROJECT_DIR$/src/main/resources/templates/showAllPayments.html" value="file://$PROJECT_DIR$/src/main/resources/templates" />
+        <entry key="file://$PROJECT_DIR$/src/main/resources/templates/showAllPaymentsOnAccount.html" value="file://$PROJECT_DIR$/src/main/resources/templates" />
+        <entry key="file://$PROJECT_DIR$/src/main/resources/templates/showAllUsersMoneyAccounts.html" value="file://$PROJECT_DIR$/src/main/resources/templates" />
+        <entry key="file://$PROJECT_DIR$/src/main/resources/templates/toAccountPaymentConfForm.html" value="file://$PROJECT_DIR$/src/main/resources/templates" />
+        <entry key="file://$PROJECT_DIR$/src/main/resources/templates/toCardPaymentConfForm.html" value="file://$PROJECT_DIR$/src/main/resources/templates" />
+        <entry key="file://$PROJECT_DIR$/src/main/resources/templates/toCardPaymentForm.html" value="file://$PROJECT_DIR$/src/main/resources/templates" />
+      </map>
+    </option>
+  </component>
+</project>
