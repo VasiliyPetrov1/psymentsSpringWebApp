@@ -1,20 +1,23 @@
 package org.kosiuk.webApp.dto;
 
+import org.kosiuk.webApp.util.sumConversion.MoneyStringOperator;
+import org.kosiuk.webApp.util.visitor.Visitor;
+import org.kosiuk.webApp.util.visitor.VisitorAcceptor;
 import org.springframework.stereotype.Component;
 
 @Component
-public class MoneyAccPaymentPreparationDto {
+public class MoneyAccPaymentPreparationDto implements MoneyStringOperator, VisitorAcceptor {
 
     private Integer senderMoneyAccountId;
     private Long receiverMoneyAccountNumber;
-    private Double payedSum;
+    private String payedSumString;
     private String assignment;
 
     public MoneyAccPaymentPreparationDto(Integer senderMoneyAccountId, Long receiverMoneyAccountNumber,
-                                         Double payedSum, String assignment) {
+                                         String payedSumString, String assignment) {
         this.senderMoneyAccountId = senderMoneyAccountId;
         this.receiverMoneyAccountNumber = receiverMoneyAccountNumber;
-        this.payedSum = payedSum;
+        this.payedSumString = payedSumString;
         this.assignment = assignment;
     }
 
@@ -37,12 +40,12 @@ public class MoneyAccPaymentPreparationDto {
         this.receiverMoneyAccountNumber = receiverMoneyAccountNumber;
     }
 
-    public Double getPayedSum() {
-        return payedSum;
+    public String getPayedSumString() {
+        return payedSumString;
     }
 
-    public void setPayedSum(Double payedSum) {
-        this.payedSum = payedSum;
+    public void setPayedSumString(String payedSumString) {
+        this.payedSumString = payedSumString;
     }
 
     public String getAssignment() {
@@ -51,5 +54,15 @@ public class MoneyAccPaymentPreparationDto {
 
     public void setAssignment(String assignment) {
         this.assignment = assignment;
+    }
+
+    @Override
+    public String getOperatedSumString() {
+        return getPayedSumString();
+    }
+
+    @Override
+    public Object accept(Visitor visitor) {
+        return visitor.visitMoneyAccPaymentPreparationDto(this);
     }
 }

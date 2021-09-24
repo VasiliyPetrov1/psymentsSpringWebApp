@@ -28,4 +28,8 @@ public interface Visitor<T> {
 
     T visitMoneyAccountName(String monAccNamr);
 
+    T visitCardPaymentPreparationDto(CardPaymentPreparationDto cardPaymentPreparationDto);
+
+    T visitMoneyAccPaymentPreparationDto(MoneyAccPaymentPreparationDto moneyAccPaymentPreparationDto);
+
 }

@@ -5,8 +5,10 @@ import org.kosiuk.webApp.entity.Payment;
 import org.kosiuk.webApp.exceptions.*;
 import org.kosiuk.webApp.service.PaymentService;
 import org.kosiuk.webApp.util.AuthUtil;
+import org.kosiuk.webApp.util.visitor.ValidationVisitor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.data.domain.Page;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -14,8 +16,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 @Controller
 @RequestMapping("/app/payment")
@@ -141,34 +142,54 @@ public class PaymentController {
                                        Model model) {
         AuthUtil.addRolesToModel(SecurityContextHolder.getContext().getAuthentication(), model);
         cardPaymentPrepDto.setSenderMoneyAccountId(senderAccId);
+        model.addAttribute("errors", new HashMap<String, String[]>());
         return "toCardPaymentForm";
     }
 
     @GetMapping("/getToCardConfPaymentForm")
-    public String checkToCardPayment(@ModelAttribute("cardPaymentPrepDto")CardPaymentPreparationDto cardPaymentPrepDto,
-                                     @ModelAttribute("cardPaymentConfDto") CardPaymentConfirmationDto cardPaymentConfirmationDto,
-                                     Model model) {
+    public String prepareToCardPayment(@ModelAttribute("cardPaymentPrepDto")CardPaymentPreparationDto cardPaymentPrepDto,
+                                       @ModelAttribute("cardPaymentConfDto") CardPaymentConfirmationDto cardPaymentConfirmationDto,
+                                       Model model) {
         AuthUtil.addRolesToModel(SecurityContextHolder.getContext().getAuthentication(), model);
+        ResourceBundle rb = ResourceBundle.getBundle("messages", LocaleContextHolder.getLocale());
+        ValidationVisitor validationVisitor = new ValidationVisitor(rb);
+        Map<String, String[]> validationErrorsMap = (Map<String, String[]>) cardPaymentPrepDto.accept(validationVisitor);
+
+        if(!validationErrorsMap.isEmpty()) {
+            model.addAttribute("cardPaymentPrepDto", cardPaymentPrepDto);
+            model.addAttribute("errors", validationErrorsMap);
+            return "toCardPaymentForm";
+        }
 
         try {
-            CardPaymentConfirmationDto cardPaymentConfDto = paymentService.prepareToCardPayment(cardPaymentPrepDto);
+            CardPaymentConfirmationDto cardPaymentConfDto = paymentService.prepareToCardPayment(cardPaymentPrepDto, rb);
             cardPaymentConfirmationDto.setSenderMoneyAccountId(cardPaymentConfDto.getSenderMoneyAccountId());
             cardPaymentConfirmationDto.setReceiverCreditCardNumber(cardPaymentConfDto.getReceiverCreditCardNumber());
             cardPaymentConfirmationDto.setReceiverAccountName(cardPaymentConfDto.getReceiverAccountName());
-            cardPaymentConfirmationDto.setPayedSum(cardPaymentConfDto.getPayedSum());
+            cardPaymentConfirmationDto.setPayedSumString(cardPaymentConfDto.getPayedSumString());
             cardPaymentConfirmationDto.setAssignment(cardPaymentConfDto.getAssignment());
-            cardPaymentConfirmationDto.setPaymentComission(cardPaymentConfDto.getPaymentComission());
+            cardPaymentConfirmationDto.setMovedSumString(cardPaymentConfDto.getMovedSumString());
+            cardPaymentConfirmationDto.setPaymentComissionString(cardPaymentConfDto.getPaymentComissionString());
         } catch (NoCreditCardByNumberException e) {
-            model.addAttribute("paymentPrepMessage", "There's no card with given number");
+            model.addAttribute("paymentPrepMessage", rb.getString("verification.payment.noCard.byNumber"));
+            model.addAttribute("errors", new HashMap<String, String[]>());
+            return "toCardPaymentForm";
         } catch (ToOwnRequisitePaymentException e) {
-            model.addAttribute("paymentPrepMessage", "Payments on your own account are forbidden");
+            model.addAttribute("paymentPrepMessage", rb.getString("verification.payment.onOwnMoneyAcc"));
+            model.addAttribute("errors", new HashMap<String, String[]>());
+            return "toCardPaymentForm";
         } catch (BlockedAccountException e) {
             model.addAttribute("paymentPrepMessage", e.getMessage());
+            model.addAttribute("errors", new HashMap<String, String[]>());
+            return "toCardPaymentForm";
         } catch (NotEnoughMoneyOnAccountException e) {
-            model.addAttribute("paymentPrepMessage", "You dont have enough money for this payment");
-            cardPaymentConfirmationDto.setPayedSum(e.getPayedSum());
-            cardPaymentConfirmationDto.setPaymentComission(e.getPaymentComission());
+            model.addAttribute("paymentPrepMessage", rb.getString("verification.payment.notEnoughMoney"));
+            model.addAttribute("notEnoughSumString", e.getPayedSumString());
+            model.addAttribute("notEnoughComissionString", e.getPaymentComissionString());
+            model.addAttribute("errors", new HashMap<String, String[]>());
+            return "toCardPaymentForm";
         }
+
         return "toCardPaymentConfForm";
 
     }
@@ -182,12 +203,13 @@ public class PaymentController {
     }
 
     @GetMapping("/getToAccountPaymentForm/{senderAccId}")
-    public String prepareToMoneyAccountPaymentForm(@PathVariable("senderAccId") Integer senderAccId,
+    public String getToMoneyAccountPaymentForm(@PathVariable("senderAccId") Integer senderAccId,
                                                @ModelAttribute("moneyAccPaymentPrepDto")
                                                        MoneyAccPaymentPreparationDto moneyAccPaymentPrepDto,
                                                Model model) {
         AuthUtil.addRolesToModel(SecurityContextHolder.getContext().getAuthentication(), model);
         moneyAccPaymentPrepDto.setSenderMoneyAccountId(senderAccId);
+        model.addAttribute("errors", new HashMap<String, String[]>());
         return "toAccountPaymentForm";
 
     }
@@ -197,25 +219,43 @@ public class PaymentController {
                                             @ModelAttribute("moneyAccPaymentConfDto") MoneyAccPaymentConfirmationDto moneyAccPaymentConfirmationDto,
                                             Model model) {
         AuthUtil.addRolesToModel(SecurityContextHolder.getContext().getAuthentication(), model);
+        ResourceBundle rb = ResourceBundle.getBundle("messages", LocaleContextHolder.getLocale());
+        ValidationVisitor validationVisitor = new ValidationVisitor(rb);
+        Map<String, String[]> validationErrorsMap = (Map<String, String[]>) moneyAccPaymentPrepDto.accept(validationVisitor);
+
+        if(!validationErrorsMap.isEmpty()) {
+            model.addAttribute("moneyAccPaymentPrepDto", moneyAccPaymentPrepDto);
+            model.addAttribute("errors", validationErrorsMap);
+            return "toAccountPaymentForm";
+        }
         try {
             MoneyAccPaymentConfirmationDto moneyAccPaymentConfDto =
-                    paymentService.prepareToMoneyAccountPayment(moneyAccPaymentPrepDto);
+                    paymentService.prepareToMoneyAccountPayment(moneyAccPaymentPrepDto, rb);
             moneyAccPaymentConfirmationDto.setSenderMoneyAccountId(moneyAccPaymentConfDto.getSenderMoneyAccountId());
             moneyAccPaymentConfirmationDto.setReceiverMoneyAccountNumber(moneyAccPaymentConfDto.getReceiverMoneyAccountNumber());
             moneyAccPaymentConfirmationDto.setReceiverAccountName(moneyAccPaymentConfDto.getReceiverAccountName());
-            moneyAccPaymentConfirmationDto.setPayedSum(moneyAccPaymentConfDto.getPayedSum());
+            moneyAccPaymentConfirmationDto.setPayedSumString(moneyAccPaymentConfDto.getPayedSumString());
             moneyAccPaymentConfirmationDto.setAssignment(moneyAccPaymentConfDto.getAssignment());
-            moneyAccPaymentConfirmationDto.setPaymentComission(moneyAccPaymentConfDto.getPaymentComission());
+            moneyAccPaymentConfirmationDto.setMovedSumString(moneyAccPaymentConfDto.getMovedSumString());
+            moneyAccPaymentConfirmationDto.setPaymentComissionString(moneyAccPaymentConfDto.getPaymentComissionString());
         } catch (NoMoneyAccountByNumberException e) {
-            model.addAttribute("moneyAccPrepMessage", "There's no money account with given number");
+            model.addAttribute("moneyAccPrepMessage", rb.getString("verification.payment.noCard.byNumber"));
+            model.addAttribute("errors", new HashMap<String, String[]>());
+            return "toAccountPaymentForm";
         } catch (ToOwnRequisitePaymentException e) {
-            model.addAttribute("moneyAccPrepMessage", "Payments on your own account are forbidden");
+            model.addAttribute("moneyAccPrepMessage", rb.getString("verification.payment.onOwnMoneyAcc"));
+            model.addAttribute("errors", new HashMap<String, String[]>());
+            return "toAccountPaymentForm";
         } catch (BlockedAccountException e) {
             model.addAttribute("moneyAccPrepMessage", e.getMessage());
+            model.addAttribute("errors", new HashMap<String, String[]>());
+            return "toAccountPaymentForm";
         } catch (NotEnoughMoneyOnAccountException e) {
-            model.addAttribute("moneyAccPrepMessage", "You dont have enough money for this payment");
-            moneyAccPaymentConfirmationDto.setPayedSum(e.getPayedSum());
-            moneyAccPaymentConfirmationDto.setPaymentComission(e.getPaymentComission());
+            model.addAttribute("moneyAccPrepMessage", rb.getString("verification.payment.notEnoughMoney"));
+            model.addAttribute("notEnoughSumString", e.getPayedSumString());
+            model.addAttribute("notEnoughComissionString", e.getPaymentComissionString());
+            model.addAttribute("errors", new HashMap<String, String[]>());
+            return "toAccountPaymentForm";
         }
 
         return "toAccountPaymentConfForm";

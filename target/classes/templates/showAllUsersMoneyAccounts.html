@@ -8,7 +8,7 @@
           href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
           integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
           crossorigin="anonymous">
-    <link href="../static/css/style.css" th:href="@{/css/style.css}" rel="stylesheet">
+    <link href="../static/css/style.css" rel="stylesheet">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
@@ -64,7 +64,7 @@
             <h3 th:text="#{monAcc}">Money Account</h3>
             <p th:text="${moneyAccountDto.getNumber()}"></p>
             <p th:text="${moneyAccountDto.getName()}"></p>
-            <p th:text="${moneyAccountDto.getSum()} + 'UAH'"></p>
+            <p th:text="${moneyAccountDto.getSumString()} + 'UAH'"></p>
             <p th:if="${moneyAccountDto.isActive()}">ACTIVE</p>
             <p th:if="${moneyAccountDto.isBlocked()}">BLOCKED</p>
             <p th:if="${moneyAccountDto.isUnlockRequested()}">UNLOCK REQUESTED</p>
@@ -81,7 +81,8 @@
                    th:href="@{/app/payment/{moneyAccId}(moneyAccId = ${moneyAccountDto.getId()})}" th:text="#{paymentsLink}">Payments</a>
                 <a th:if="${moneyAccountDto.isActive()}"
                    th:href="@{/app/payment/getToAccountPaymentForm/{senderAccId}(senderAccId = ${moneyAccountDto.getId()})}">
-                    <div class="roundButton ml-2 mr-1" style="background-image: url(/images/moneyAccountLogo.png)"></div>
+                    <div class="roundButton ml-2 mr-1" style="width: 50px;height: 50px;border-radius: 20px;background-size: cover;
+                    border: 1px solid #788; background-image: url(/images/moneyAccountLogo.png)"></div>
                 </a>
             </div>
             </div>

@@ -7,23 +7,23 @@ public class PaymentDetailsDto {
     private Long number;
     private boolean sent;
     private boolean prepared;
-    private Double payedSum;
-    private Double comission;
-    private Double movedSum;
+    private String payedSumString;
+    private String comissionString;
+    private String movedSumString;
     private String assignment;
     private String timeString;
     private String senderAccountName;
     private String receiverAccountName;
 
-    public PaymentDetailsDto(Long number, boolean sent, boolean prepared, Double payedSum, Double comission,
-                             Double movedSum, String assignment, String timeString, String senderAccountName,
+    public PaymentDetailsDto(Long number, boolean sent, boolean prepared, String payedSumString, String comissionString,
+                             String movedSumString, String assignment, String timeString, String senderAccountName,
                              String receiverAccountName) {
         this.number = number;
         this.sent = sent;
         this.prepared = prepared;
-        this.payedSum = payedSum;
-        this.comission = comission;
-        this.movedSum = movedSum;
+        this.payedSumString = payedSumString;
+        this.comissionString = comissionString;
+        this.movedSumString = movedSumString;
         this.assignment = assignment;
         this.timeString = timeString;
         this.senderAccountName = senderAccountName;
@@ -57,28 +57,28 @@ public class PaymentDetailsDto {
         this.prepared = prepared;
     }
 
-    public Double getPayedSum() {
-        return payedSum;
+    public String getPayedSumString() {
+        return payedSumString;
     }
 
-    public void setPayedSum(Double payedSum) {
-        this.payedSum = payedSum;
+    public void setPayedSumString(String payedSumString) {
+        this.payedSumString = payedSumString;
     }
 
-    public Double getComission() {
-        return comission;
+    public String getComissionString() {
+        return comissionString;
     }
 
-    public void setComission(Double comission) {
-        this.comission = comission;
+    public void setComissionString(String comissionString) {
+        this.comissionString = comissionString;
     }
 
-    public Double getMovedSum() {
-        return movedSum;
+    public String getMovedSumString() {
+        return movedSumString;
     }
 
-    public void setMovedSum(Double movedSum) {
-        this.movedSum = movedSum;
+    public void setMovedSumString(String movedSumString) {
+        this.movedSumString = movedSumString;
     }
 
     public String getAssignment() {

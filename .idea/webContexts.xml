@@ -6,6 +6,7 @@
         <entry key="file://$PROJECT_DIR$/src/main/resources/templates/home.html" value="file://$PROJECT_DIR$/src/main/resources/templates" />
         <entry key="file://$PROJECT_DIR$/src/main/resources/templates/orderConfirmationForm.html" value="file://$PROJECT_DIR$/src/main/resources/templates" />
         <entry key="file://$PROJECT_DIR$/src/main/resources/templates/personalRoom.html" value="file://$PROJECT_DIR$/src/main/resources/templates" />
+        <entry key="file://$PROJECT_DIR$/src/main/resources/templates/showAllCreditCards.html" value="file://$PROJECT_DIR$/src/main/resources/templates" />
         <entry key="file://$PROJECT_DIR$/src/main/resources/templates/showAllMoneyAccounts.html" value="file://$PROJECT_DIR$/src/main/resources/templates" />
         <entry key="file://$PROJECT_DIR$/src/main/resources/templates/showAllOrders.html" value="file://$PROJECT_DIR$/src/main/resources/templates" />
         <entry key="file://$PROJECT_DIR$/src/main/resources/templates/showAllPayments.html" value="file://$PROJECT_DIR$/src/main/resources/templates" />

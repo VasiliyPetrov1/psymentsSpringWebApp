@@ -8,7 +8,7 @@
           href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
           integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
           crossorigin="anonymous">
-    <link href="../static/css/style.css" th:href="@{/css/style.css}" rel="stylesheet">
+    <link href="../static/css/style.css" rel="stylesheet">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
@@ -63,7 +63,7 @@
         <h5 th:text="#{ofUser} + ${moneyAccountDto.getUsername()}"></h5>
         <p th:text="${moneyAccountDto.getNumber()}"></p>
         <p th:text="${moneyAccountDto.getName()}"></p>
-        <p th:text="${moneyAccountDto.getSum()} + 'UAH'"></p>
+        <p th:text="${moneyAccountDto.getSumString()} + 'UAH'"></p>
         <p th:if="${moneyAccountDto.isActive()}">ACTIVE</p>
         <p th:if="${moneyAccountDto.isBlocked()}">BLOCKED</p>
         <p th:if="${moneyAccountDto.isUnlockRequested()}">UNLOCK REQUESTED</p>

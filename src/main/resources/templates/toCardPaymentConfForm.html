@@ -7,7 +7,7 @@
           href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
           integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
           crossorigin="anonymous">
-    <link href="../static/css/style.css" th:href="@{/css/style.css}" rel="stylesheet">
+    <link href="../static/css/style.css" rel="stylesheet">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
@@ -22,28 +22,26 @@
             <input type="hidden" th:field="*{receiverAccountName}">
             <p class="emphText" th:text="#{recMonAcc}">Receiver's card number:</p>
             <p th:text="${cardPaymentConfDto.getReceiverAccountName()}"></p>
-            <input type="hidden" th:field="*{payedSum}">
+            <input type="hidden" th:field="*{payedSumString}">
             <p class="emphText" th:text="#{sumToPayLabel}">Sum to pay:</p>
-            <p th:if="${cardPaymentConfDto.getPayedSum() != null and cardPaymentConfDto.getPaymentComission() != null}
-             and not (${paymentPrepMessage} == 'You dont have enough money for this payment')"
-               th:text="${cardPaymentConfDto.getPayedSum() - cardPaymentConfDto.getPaymentComission()  + 'UAH'}"></p>
-            <p class="cRed" th:if="${cardPaymentConfDto.getPayedSum() != null and cardPaymentConfDto.getPaymentComission() != null}
-             and (${paymentPrepMessage} == 'You dont have enough money for this payment')"
-               th:text="${cardPaymentConfDto.getPayedSum() - cardPaymentConfDto.getPaymentComission()  + 'UAH'}"></p>
+            <p th:if="not (${paymentPrepMessage} == 'You dont have enough money for this payment')"
+               th:text="${cardPaymentConfDto.getMovedSumString()  + 'UAH'}"></p>
+            <p class="cRed" th:if="(${paymentPrepMessage} == 'You dont have enough money for this payment')"
+               th:text="${cardPaymentConfDto.getMovedSumString()  + 'UAH'}"></p>
             <p class="emphText" th:text="#{senderPaysComLabel}">Sender pays comission:</p>
             <p th:if="not (${paymentPrepMessage} == 'You dont have enough money for this payment')"
-               th:text="${cardPaymentConfDto.getPaymentComission() + 'UAH'}"></p>
+               th:text="${cardPaymentConfDto.getPaymentComissionString() + 'UAH'}"></p>
             <p class="cRed" th:if="${paymentPrepMessage} == 'You dont have enough money for this payment'"
-               th:text="${cardPaymentConfDto.getPaymentComission() + 'UAH'}"></p>
+               th:text="${cardPaymentConfDto.getPaymentComissionString() + 'UAH'}"></p>
             <p class="emphText" th:text="#{totToPayLabel}">Total to pay:</p>
             <p th:if="not (${paymentPrepMessage} == 'You dont have enough money for this payment')"
-               th:text="${cardPaymentConfDto.getPayedSum() + 'UAH'}"></p>
+               th:text="${cardPaymentConfDto.getPayedSumString() + 'UAH'}"></p>
             <p th:if="${paymentPrepMessage} == 'You dont have enough money for this payment'"
-               class="cRed" th:text="${cardPaymentConfDto.getPayedSum()} + 'UAH'"></p>
+               class="cRed" th:text="${cardPaymentConfDto.getPayedSumString()} + 'UAH'"></p>
             <input type="hidden" th:field="*{assignment}">
             <p class="emphText" th:text="#{assignmentLabel}">Assignment:</p>
             <p th:text="${cardPaymentConfDto.getAssignment()}"></p>
-            <input type="hidden" th:field="*{paymentComission}">
+            <input type="hidden" th:field="*{paymentComissionString}">
             <input th:if="${paymentPrepMessage == null}" type="submit" th:value="#{confBtn}" class="button btn-success mt-2 mb-2 mr-2">
         </form>
     </div>

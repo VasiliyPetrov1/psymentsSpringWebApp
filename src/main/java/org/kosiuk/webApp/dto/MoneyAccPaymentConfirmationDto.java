@@ -1,26 +1,29 @@
 package org.kosiuk.webApp.dto;
 
+import org.kosiuk.webApp.util.sumConversion.MoneyStringOperator;
 import org.springframework.stereotype.Component;
 
 @Component
-public class MoneyAccPaymentConfirmationDto {
+public class MoneyAccPaymentConfirmationDto implements MoneyStringOperator {
 
     private Integer senderMoneyAccountId;
     private Long receiverMoneyAccountNumber;
     private String receiverAccountName;
-    private Double payedSum;
+    private String payedSumString;
     private String assignment;
-    private Double paymentComission;
+    private String movedSumString;
+    private String paymentComissionString;
 
     public MoneyAccPaymentConfirmationDto(Integer senderMoneyAccountId, Long receiverMoneyAccountNumber,
-                                          String receiverAccountName, Double payedSum, String assignment,
-                                          Double paymentComission) {
+                                          String receiverAccountName, String payedSumString, String assignment,
+                                          String movedSumString, String paymentComissionString) {
         this.senderMoneyAccountId = senderMoneyAccountId;
         this.receiverMoneyAccountNumber = receiverMoneyAccountNumber;
         this.receiverAccountName = receiverAccountName;
-        this.payedSum = payedSum;
+        this.payedSumString = payedSumString;
         this.assignment = assignment;
-        this.paymentComission = paymentComission;
+        this.movedSumString = movedSumString;
+        this.paymentComissionString = paymentComissionString;
     }
 
     public MoneyAccPaymentConfirmationDto() {
@@ -50,12 +53,12 @@ public class MoneyAccPaymentConfirmationDto {
         this.receiverAccountName = receiverAccountName;
     }
 
-    public Double getPayedSum() {
-        return payedSum;
+    public String getPayedSumString() {
+        return payedSumString;
     }
 
-    public void setPayedSum(Double payedSum) {
-        this.payedSum = payedSum;
+    public void setPayedSumString(String payedSumString) {
+        this.payedSumString = payedSumString;
     }
 
     public String getAssignment() {
@@ -66,11 +69,29 @@ public class MoneyAccPaymentConfirmationDto {
         this.assignment = assignment;
     }
 
-    public Double getPaymentComission() {
-        return paymentComission;
+    public String getMovedSumString() {
+        return movedSumString;
     }
 
-    public void setPaymentComission(Double paymentComission) {
-        this.paymentComission = paymentComission;
+    public void setMovedSumString(String movedSumString) {
+        this.movedSumString = movedSumString;
+    }
+
+    public String getPaymentComissionString() {
+        return paymentComissionString;
+    }
+
+    public void setPaymentComissionString(String paymentComissionString) {
+        this.paymentComissionString = paymentComissionString;
+    }
+
+    @Override
+    public String getOperatedSumString() {
+        return getPayedSumString();
+    }
+
+    @Override
+    public String getOperatedComissionString() {
+        return getPaymentComissionString();
     }
 }

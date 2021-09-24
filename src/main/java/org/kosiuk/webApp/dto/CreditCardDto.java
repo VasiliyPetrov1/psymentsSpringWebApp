@@ -1,26 +1,27 @@
 package org.kosiuk.webApp.dto;
 
+import org.kosiuk.webApp.util.sumConversion.MoneyStringOperator;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 
 @Component
-public class CreditCardDto {
+public class CreditCardDto implements MoneyStringOperator {
 
     private Integer id;
     private Long number;
-    private Double sumAvailable;
+    private String sumAvailableString;
     private Integer cvv;
     private LocalDate expireDate;
     private boolean isVisa;
     private boolean isMasterCard;
     private Integer moneyAccountId;
 
-    public CreditCardDto(Integer id, Long number, Double sumAvailable, Integer cvv, LocalDate expireDate,
+    public CreditCardDto(Integer id, Long number, String sumAvailableString, Integer cvv, LocalDate expireDate,
                          boolean isVisa, boolean isMasterCard, Integer moneyAccountId) {
         this.id = id;
         this.number = number;
-        this.sumAvailable = sumAvailable;
+        this.sumAvailableString = sumAvailableString;
         this.cvv = cvv;
         this.expireDate = expireDate;
         this.isVisa = isVisa;
@@ -48,12 +49,12 @@ public class CreditCardDto {
         this.number = number;
     }
 
-    public Double getSumAvailable() {
-        return sumAvailable;
+    public String getSumAvailableString() {
+        return sumAvailableString;
     }
 
-    public void setSumAvailable(Double sumAvailable) {
-        this.sumAvailable = sumAvailable;
+    public void setSumAvailableString(String sumAvailableString) {
+        this.sumAvailableString = sumAvailableString;
     }
 
     public Integer getCvv() {
@@ -94,5 +95,10 @@ public class CreditCardDto {
 
     public void setMoneyAccountId(Integer moneyAccountId) {
         this.moneyAccountId = moneyAccountId;
+    }
+
+    @Override
+    public String getOperatedSumString() {
+        return getSumAvailableString();
     }
 }

@@ -7,7 +7,7 @@
           href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
           integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
           crossorigin="anonymous">
-    <link href="../static/css/style.css" th:href="@{/css/style.css}" rel="stylesheet">
+    <link href="../static/css/style.css" rel="stylesheet">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
@@ -16,15 +16,43 @@
         <form th:action="@{/app/payment/getToCardConfPaymentForm}" th:method="GET" th:object="${cardPaymentPrepDto}">
             <input type="hidden" th:field="*{senderMoneyAccountId}">
             <label th:for="cardNum" th:text="#{recCardNum}">Receiver's card number:</label>
-            <input class="form-control" type="text" th:field="*{receiverCreditCardNumber}" th:id="cardNum">
+            <input th:if="${errors.get('cardNumErrors') != null}" type="text" th:field="*{receiverCreditCardNumber}" class="form-control is-invalid" th:id="cardNum" >
+            <input th:if="${errors.get('cardNumErrors') == null}" type="text" th:field="*{receiverCreditCardNumber}" class="form-control is-valid" th:id="cardNum" >
+            <div th:if="${errors.get('cardNumErrors') != null}" class="alert alert-danger" role="alert"
+                 th:each="error : ${errors.get('cardNumErrors')}">
+                <span th:text="${error}"></span>
+                <br>
+            </div>
             <br/>
-            <label th:for="payeSum" th:text="#{sumToPayLabel}">Sum:</label>
-            <input class="form-control" type="text" th:field="*{payedSum}" th:id="payedSum">
+            <label th:for="payedSum" th:text="#{sumToPayLabel}">Sum:</label>
+            <input th:if="${errors.get('sumErrors') != null}" type="text" th:field="*{payedSumString}" class="form-control is-invalid" th:id="payedSum" >
+            <input th:if="${errors.get('sumErrors') == null}" type="text" th:field="*{payedSumString}" class="form-control is-valid" th:id="payedSum" >
+            <div th:if="${errors.get('sumErrors') != null}" class="alert alert-danger" role="alert"
+                 th:each="error : ${errors.get('sumErrors')}">
+                <span th:text="${error}"></span>
+                <br>
+            </div>
             <br/>
             <label th:for="assignment" th:text="#{assignmentLabel}">Assignment:</label>
-            <input class="form-control" type="text" th:field="*{assignment}" th:id="assignment">
+            <input th:if="${errors.get('assignmentErrors') != null}" type="text" th:field="*{assignment}" class="form-control is-invalid" th:id="assignment" >
+            <input th:if="${errors.get('assignmentErrors') == null}" type="text" th:field="*{assignment}" class="form-control is-valid" th:id="assignment" >
+            <div th:if="${errors.get('assignmentErrors') != null}" class="alert alert-danger" role="alert"
+                 th:each="error : ${errors.get('assignmentErrors')}">
+                <span th:text="${error}"></span>
+                <br>
+            </div>
             <br/>
-            <input class="btn vtn-success" type="submit" th:value="#{payBtn}">
+            <div class="alert alert-danger" role="alert" th:if="${paymentPrepMessage != null}">
+                <p th:text="${paymentPrepMessage}"></p>
+                <div th:if="${paymentPrepMessage.equals('You dont have enough money for this payment.') ||
+                paymentPrepMessage.equals('У вас недостатньо грошей для даного платежу.')}">
+                    <p class="emphText cRed" th:text="#{payedSumLabel}"></p>
+                    <p class="text-danger" th:text="${notEnoughSumString}"></p>
+                    <p class="emphText cRed" th:text="#{senderPaysComLabel}"></p>
+                    <p class="text-danger" th:text="${notEnoughComissionString}"></p>
+                </div>
+            </div>
+            <input class="btn btn-success" type="submit" th:value="#{payBtn}">
         </form>
     </div>
 </body>

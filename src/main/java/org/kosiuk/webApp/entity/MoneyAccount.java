@@ -1,5 +1,6 @@
 package org.kosiuk.webApp.entity;
 
+import org.kosiuk.webApp.util.sumConversion.MoneyIntDecOperator;
 import org.springframework.lang.NonNull;
 
 import javax.persistence.*;
@@ -8,7 +9,7 @@ import java.util.List;
 @Entity
 @Table(name = "money_account", uniqueConstraints = {@UniqueConstraint(columnNames = "id"),
         @UniqueConstraint(columnNames = "number")})
-public class MoneyAccount {
+public class MoneyAccount implements MoneyIntDecOperator {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
@@ -21,9 +22,21 @@ public class MoneyAccount {
     @Column(length = 45, nullable = false)
     private String name;
 
+    @Column(name = "sum_int", nullable = false)
     @NonNull
-    @Column(scale = 2, nullable = false)
-    private Double sum;
+    private Long sumInt;
+
+    @Column(name = "sum_dec", nullable = false)
+    @NonNull
+    private Integer sumDec;
+
+    @Column(name = "cur_sum_available_int", nullable = false)
+    @NonNull
+    private Long curSumAvailableInt;
+
+    @Column(name = "cur_sum_available_dec", nullable = false)
+    @NonNull
+    private Integer curSumAvailableDec;
 
     @Column(name = "active", nullable = false)
     @Enumerated(EnumType.STRING)
@@ -44,19 +57,28 @@ public class MoneyAccount {
     @JoinColumn(name = "receiver_money_account_id")
     private List<Transaction> receivedTransactions;
 
-    public MoneyAccount(Integer id, @NonNull Long number, String name, @NonNull Double sum,
+    public MoneyAccount(Integer id, @NonNull Long number, String name, @NonNull Long sumInt, @NonNull Integer sumDec,
+                        @NonNull Long curSumAvailableInt, @NonNull Integer curSumAvailableDec,
                         @NonNull MoneyAccountActStatus active) {
         this.id = id;
         this.number = number;
         this.name = name;
-        this.sum = sum;
+        this.sumInt = sumInt;
+        this.sumDec = sumDec;
+        this.curSumAvailableInt = curSumAvailableInt;
+        this.curSumAvailableDec = curSumAvailableDec;
         this.active = active;
     }
 
-    public MoneyAccount(@NonNull Long number, String name, @NonNull Double sum, @NonNull MoneyAccountActStatus active) {
+    public MoneyAccount(@NonNull Long number, String name, @NonNull Long sumInt, @NonNull Integer sumDec,
+                        @NonNull Long curSumAvailableInt, @NonNull Integer curSumAvailableDec,
+                        @NonNull MoneyAccountActStatus active) {
         this.number = number;
         this.name = name;
-        this.sum = sum;
+        this.sumInt = sumInt;
+        this.sumDec = sumDec;
+        this.curSumAvailableInt = curSumAvailableInt;
+        this.curSumAvailableDec = curSumAvailableDec;
         this.active = active;
     }
 
@@ -88,12 +110,40 @@ public class MoneyAccount {
         this.name = name;
     }
 
-    public Double getSum() {
-        return sum;
+    @NonNull
+    public Long getSumInt() {
+        return sumInt;
     }
 
-    public void setSum(Double sum) {
-        this.sum = sum;
+    public void setSumInt(@NonNull Long sumInt) {
+        this.sumInt = sumInt;
+    }
+
+    @NonNull
+    public Integer getSumDec() {
+        return sumDec;
+    }
+
+    public void setSumDec(@NonNull Integer sumDec) {
+        this.sumDec = sumDec;
+    }
+
+    @NonNull
+    public Long getCurSumAvailableInt() {
+        return curSumAvailableInt;
+    }
+
+    public void setCurSumAvailableInt(@NonNull Long curSumAvailableInt) {
+        this.curSumAvailableInt = curSumAvailableInt;
+    }
+
+    @NonNull
+    public Integer getCurSumAvailableDec() {
+        return curSumAvailableDec;
+    }
+
+    public void setCurSumAvailableDec(@NonNull Integer curSumAvailableDec) {
+        this.curSumAvailableDec = curSumAvailableDec;
     }
 
     @NonNull
@@ -127,5 +177,15 @@ public class MoneyAccount {
 
     public void setReceivedTransactions(List<Transaction> receivedTransactions) {
         this.receivedTransactions = receivedTransactions;
+    }
+
+    @Override
+    public long getOperatedSumInt() {
+        return getSumInt();
+    }
+
+    @Override
+    public int getOperatedSumDec() {
+        return getSumDec();
     }
 }

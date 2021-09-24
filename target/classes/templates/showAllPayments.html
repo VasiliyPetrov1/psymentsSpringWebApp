@@ -8,7 +8,7 @@
           href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
           integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
           crossorigin="anonymous">
-    <link href="../static/css/style.css" th:href="@{/css/style.css}" rel="stylesheet">
+    <link href="../static/css/style.css" rel="stylesheet">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
@@ -68,18 +68,19 @@
                     </div>
                     <div class="col">
                         <a th:href="@{/app/payment/paymentDetails/{paymentNum}(paymentNum = ${curPaymentDto.getNumber()})}">
-                            <div class="roundButton ml-1 mr-1" style="background-image: url(/images/paymentDetLogo.jpg)"></div>
+                            <div class="roundButton ml-1 mr-1" style="width: 50px; height: 50px;border-radius: 20px;background-size: cover;
+                    border: 1px solid #788;background-image: url(/images/paymentDetLogo.jpg)"></div>
                         </a>
                     </div>
                 </div>
                 <div class="row pl-1 pr-1 mt-1 mb-1">
                     <div class="col">
                         <p class="emphText" th:text="#{payedSumLabel}">Payed sum:</p>
-                        <p th:text="${curPaymentDto.getPayedSum()}"></p>
+                        <p th:text="${curPaymentDto.getPayedSumString()} + 'UAH'"></p>
                     </div>
                     <div class="col">
                         <p class="emphText" th:text="#{comissionLabel}">Comission:</p>
-                        <p th:text="${curPaymentDto.getComission()}"></p>
+                        <p th:text="${curPaymentDto.getComissionString()} + 'UAH'"></p>
                     </div>
                 </div>
                 <div class="row pl-1 pr-1 mt-1 mb-1">

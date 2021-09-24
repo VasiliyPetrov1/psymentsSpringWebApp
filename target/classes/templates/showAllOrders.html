@@ -8,7 +8,7 @@
           href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
           integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
           crossorigin="anonymous">
-    <link href="../static/css/style.css" th:href="@{/css/style.css}" rel="stylesheet">
+    <link href="../static/css/style.css" rel="stylesheet">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
@@ -54,8 +54,8 @@
     </div>
 </nav>
 <div class="container" style="width: 70em; border: 2px solid #999; border-radius: 5px; margin-top: 6.5em">
-    <p class="text-danger" th:text="${orderPreparingMessage}"></p>
-    <p class="text-danger" th:text="${moneyAccCreationMessage}"></p>
+    <h3 class="text-danger" th:text="${orderPreparingMessage}"></h3>
+    <h3 class="text-danger" th:text="${moneyAccCreationMessage}"></h3>
     <h2 th:text="#{allOrders}">All Credit Card Orders</h2>
     <div class="row justify-content-start mt-2 mb-2">
     <div class="card pr-2 pl-2 col-3" style="height: 100%; border:2px solid #777"

@@ -1,6 +1,5 @@
 package org.kosiuk.webApp.controller;
 
-import org.dom4j.rule.Mode;
 import org.kosiuk.webApp.dto.MoneyAccountConfirmationDto;
 import org.kosiuk.webApp.dto.MoneyAccountDto;
 import org.kosiuk.webApp.dto.MoneyAccountWithUserDto;
@@ -20,7 +19,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 
 @Controller
 @RequestMapping("app/moneyAccount")
@@ -59,7 +57,7 @@ public class MoneyAccountController {
         model.addAttribute("totalItems", page.getTotalElements());
 
         List<MoneyAccountWithUserDto> moneyAccountDtos = moneyAccountService.
-                convertMoneyAccountsToMoneyAccountsToDtosWithUser(moneyAccounts);
+                convertMoneyAccountsToMoneyAccountDtosWithUser(moneyAccounts);
         model.addAttribute("moneyAccountDtos", moneyAccountDtos);
 
         model.addAttribute("sortParameter", sortParameter);
@@ -190,7 +188,6 @@ public class MoneyAccountController {
     public String cancelCreation(Model model) {
         AuthUtil.addRolesToModel(SecurityContextHolder.getContext().getAuthentication(), model);
         moneyAccountService.cancelCreation();
-        System.err.println("allalalalalla");
         return "redirect:/app/moneyAccount";
     }
 

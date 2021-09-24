@@ -9,8 +9,10 @@ import org.kosiuk.webApp.entity.MoneyAccountActStatus;
 import org.kosiuk.webApp.entity.User;
 import org.kosiuk.webApp.exceptions.UnsafeMoneyAccCreationException;
 import org.kosiuk.webApp.repository.MoneyAccountRepository;
+import org.kosiuk.webApp.util.sumConversion.MoneyIntDecToStringAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.annotation.Order;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -22,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class MoneyAccountService {
@@ -46,7 +49,7 @@ public class MoneyAccountService {
 
     @Transactional(propagation = Propagation.REQUIRED)
     public MoneyAccount createMoneyAccount(Long number, String name) {
-        MoneyAccount moneyAccount = new MoneyAccount(number, name, 0.0, MoneyAccountActStatus.ACTIVE);
+        MoneyAccount moneyAccount = new MoneyAccount(number, name, 0L, 0, 0L, 0, MoneyAccountActStatus.ACTIVE);
         moneyAccountRepository.save(moneyAccount);
         addPropService.incCurMoneyAccountNum();
         isAnyMoneyAccOnCreation = false;
@@ -98,6 +101,8 @@ public class MoneyAccountService {
         Pageable pageable;
         if (sortParameter.equals("none")) {
             pageable = PageRequest.of(pageNumber - 1, pageSize);
+        } else if (sortParameter.equals("sum")) {
+            pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.Direction.ASC, "sumInt", "sumDec");
         } else {
             pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.Direction.ASC, sortParameter);
         }
@@ -131,12 +136,9 @@ public class MoneyAccountService {
 
     public List<MoneyAccountDto> getAllUsersMoneyAccountDtos(User user) {
         List<CreditCard> creditCards = user.getCreditCards();
-        List<MoneyAccountDto> moneyAccountDtos = new ArrayList<>();
-        for (CreditCard curCreditCard : creditCards) {
-            moneyAccountDtos.add(convertMoneyAccountToDto(curCreditCard.getMoneyAccount(),
-                    curCreditCard.getUser().isHasBlockedAccount()));
-        }
-        return moneyAccountDtos;
+        return creditCards.stream().map(creditCard ->
+                convertMoneyAccountToDto(creditCard.getMoneyAccount(), creditCard.getUser().isHasBlockedAccount())).
+                collect(Collectors.toList());
     }
 
     public List<MoneyAccountDto> getAllSortedUsersMoneyAccountDtos(User user, String sortParameter) {
@@ -195,7 +197,7 @@ public class MoneyAccountService {
 
     public List<MoneyAccountDto> sortMoneyAccountDtosByRemainedSum(List<MoneyAccountDto> moneyAccountDtos) {
 
-        moneyAccountDtos.sort(Comparator.comparing(MoneyAccountDto::getSum));
+        moneyAccountDtos.sort(Comparator.comparing(MoneyAccountDto::getSumString));
 
         return moneyAccountDtos;
     }
@@ -203,7 +205,8 @@ public class MoneyAccountService {
     public MoneyAccountDto convertMoneyAccountToDto(MoneyAccount moneyAccount, boolean hasBlockedAccount) {
 
         MoneyAccountDto moneyAccountDto = new MoneyAccountDto(moneyAccount.getId(), moneyAccount.getNumber(),
-                moneyAccount.getName(), moneyAccount.getSum(), moneyAccount.getActive().equals(MoneyAccountActStatus.ACTIVE),
+                moneyAccount.getName(), new MoneyIntDecToStringAdapter(moneyAccount).getOperatedSumString(),
+                moneyAccount.getActive().equals(MoneyAccountActStatus.ACTIVE),
                 moneyAccount.getActive().equals(MoneyAccountActStatus.BLOCKED),
                 moneyAccount.getActive().equals(MoneyAccountActStatus.UNLOCK_REQUESTED), !hasBlockedAccount);
 
@@ -217,28 +220,7 @@ public class MoneyAccountService {
         return moneyAccountWithUserDto;
     }
 
-    public List<MoneyAccountDto> convertMoneyAccountsToMoneyAccountOfUserDtos(List<MoneyAccount> moneyAccounts,
-                                                                              int userId) {
-
-        List<MoneyAccountDto> moneyAccountDtos = new ArrayList<>();
-        CreditCard creditCard;
-        User owner;
-        for (MoneyAccount curMoneyAccount : moneyAccounts) {
-            creditCard = curMoneyAccount.getCreditCard();
-            if(creditCard != null) {
-                owner = curMoneyAccount.getCreditCard().getUser();
-                if (owner.getId() == userId) {
-                    moneyAccountDtos.add(convertMoneyAccountToDto(curMoneyAccount,
-                            owner.isHasBlockedAccount()));
-                }
-                System.err.println(owner.getId() + " " + userId);
-            }
-        }
-
-        return moneyAccountDtos;
-    }
-
-    public List<MoneyAccountWithUserDto> convertMoneyAccountsToMoneyAccountsToDtosWithUser
+    public List<MoneyAccountWithUserDto> convertMoneyAccountsToMoneyAccountDtosWithUser
             (List<MoneyAccount> moneyAccounts) {
         List<MoneyAccountWithUserDto> moneyAccountWithUserDtos = new ArrayList<>();
         for (MoneyAccount curMoneyAccount : moneyAccounts) {

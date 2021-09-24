@@ -8,7 +8,7 @@
           href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
           integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
           crossorigin="anonymous">
-    <link href="../static/css/style.css" th:href="@{/css/style.css}" rel="stylesheet">
+    <link href="../static/css/style.css" rel="stylesheet">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
@@ -58,21 +58,21 @@
         <div class="row justify-content-start mt-2">
         <div class="container mt-2 mb-2 mr-2 ml-2 pt-1 pb-1" style="width: 22em" th:each="curCardDto : ${creditCardDtos}">
         <div class="card pr-2 pl-2 pt-1 pb-2 mt-2 mb-2" style="background-image: url(/images/space.png); background-size: cover;
-         width: 20em">
+        width: 20em; color: white; font-family: 'Roboto Thin'; font-size: 18px; font-weight: 700;">
             <p class="crCardText mt-2 mr-1 ml-1" th:text="${curCardDto.getNumber()}"></p>
             <div class="row justify-content-between mt-2 mr-1 ml-1 crCardText">
                 <p th:text="${curCardDto.getCvv()}"></p>
                 <p th:text="${curCardDto.getExpireDate()}"></p>
             </div>
             <div class="row justify-content-between mt-2 mr-1 ml-1 crCardText">
-                <p th:text="${curCardDto.getSumAvailable()} + 'UAH'"></p>
+                <p th:text="${curCardDto.getSumAvailableString()} + 'UAH'"></p>
                 <div th:if="${curCardDto.isVisa()}" class="paymentSysLogo mb-1"
-                     style="background-image: url(/images/visaLogo.png); background-size: cover"></div>
+                     style="width: 65px; height: 50px; background-size: contain; background-image: url(/images/visaLogo.png); background-repeat: no-repeat"></div>
                 <div th:if="${curCardDto.isMasterCard()}"class="paymentSysLogo mb-1"
-                     style="background-image: url(/images/masterCardLogo.png); background-size: cover"></div>
+                     style="width: 65px; height: 50px; background-size: contain; background-image: url(/images/masterCardLogo.png); background-repeat: no-repeat"></div>
             </div>
         </div>
-            <div class="row justify-content-start align-items-center ml-1 mt-2 mb-2">
+            <div class="row justify-content-start align-items-center ml-3 mt-2 mb-2">
                 <form th:method="GET"
                       th:action="@{/app/moneyAccount/{moneyAccId}(moneyAccId = ${curCardDto.getMoneyAccountId()})}">
                     <input type="submit" th:value="#{relAcc}" class="btn btn-primary mr-1 ml-1">
@@ -81,7 +81,8 @@
                     <input type="submit" th:value="#{putMon}" class="btn btn-success mr-1 ml-1">
                 </form>
                 <a th:href="@{/app/payment/getToCardPaymentForm/{senderAccId}(senderAccId = ${curCardDto.getMoneyAccountId()})}">
-                    <div class="roundButton ml-1 mr-1" style="background-image: url(/images/creditCardLogo.png)"></div>
+                    <div class="roundButton ml-1 mr-1" style="width: 50px;height: 50px; border-radius: 20px;background-size: cover;
+                    border: 1px solid #788; background-image: url(/images/creditCardLogo.png)"></div>
                 </a>
             </div>
         </div>

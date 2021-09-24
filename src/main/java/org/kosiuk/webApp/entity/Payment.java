@@ -1,11 +1,13 @@
 package org.kosiuk.webApp.entity;
 
+import org.kosiuk.webApp.util.sumConversion.MoneyIntDecOperator;
+
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "payment")
-public class Payment {
+public class Payment implements MoneyIntDecOperator {
 
     @EmbeddedId
     private PaymentId paymentId;
@@ -14,11 +16,17 @@ public class Payment {
     @Enumerated(EnumType.STRING)
     private PaymentStatus status;
 
-    @Column(name = "payed_sum", scale = 2, nullable = false)
-    private Double payedSum;
+    @Column(name = "payed_sum_int",  nullable = false)
+    private Long payedSumInt;
 
-    @Column(name = "comission", scale = 2, nullable = false)
-    private Double comission;
+    @Column(name = "payed_sum_dec",  nullable = false)
+    private Integer payedSumDec;
+
+    @Column(name = "comission_int", nullable = false)
+    private Long comissionInt;
+
+    @Column(name = "comission_dec", nullable = false)
+    private Integer comissionDec;
 
     @Column(name = "assignment", length = 200)
     private String assignment;
@@ -38,20 +46,23 @@ public class Payment {
     })
     private Transaction transaction;
 
-    public Payment(PaymentId paymentId, PaymentStatus status, Double payedSum, Double comission,
-                   String assignment, LocalDateTime time) {
+    public Payment(PaymentId paymentId, PaymentStatus status, Long payedSumInt, Integer payedSumDec, Long comissionInt,
+                   Integer comissionDec, String assignment, LocalDateTime time) {
         this.paymentId = paymentId;
         this.status = status;
-        this.payedSum = payedSum;
-        this.comission = comission;
+        this.payedSumInt = payedSumInt;
+        this.payedSumDec = payedSumDec;
+        this.comissionInt = comissionInt;
+        this.comissionDec = comissionDec;
         this.assignment = assignment;
         this.time = time;
     }
 
-    public Payment(PaymentId paymentId, PaymentStatus status, Double payedSum) {
+    public Payment(PaymentId paymentId, PaymentStatus status, Long payedSumInt, Integer payedSumDec) {
         this.paymentId = paymentId;
         this.status = status;
-        this.payedSum = payedSum;
+        this.payedSumInt = payedSumInt;
+        this.payedSumDec = payedSumDec;
     }
 
     public Payment() {
@@ -73,20 +84,36 @@ public class Payment {
         this.status = status;
     }
 
-    public Double getPayedSum() {
-        return payedSum;
+    public Long getPayedSumInt() {
+        return payedSumInt;
     }
 
-    public void setPayedSum(Double payedSum) {
-        this.payedSum = payedSum;
+    public void setPayedSumInt(Long payedSumInt) {
+        this.payedSumInt = payedSumInt;
     }
 
-    public Double getComission() {
-        return comission;
+    public Integer getPayedSumDec() {
+        return payedSumDec;
     }
 
-    public void setComission(Double comission) {
-        this.comission = comission;
+    public void setPayedSumDec(Integer payedSumDec) {
+        this.payedSumDec = payedSumDec;
+    }
+
+    public Long getComissionInt() {
+        return comissionInt;
+    }
+
+    public void setComissionInt(Long comissionInt) {
+        this.comissionInt = comissionInt;
+    }
+
+    public Integer getComissionDec() {
+        return comissionDec;
+    }
+
+    public void setComissionDec(Integer comissionDec) {
+        this.comissionDec = comissionDec;
     }
 
     public LocalDateTime getTime() {
@@ -119,5 +146,25 @@ public class Payment {
 
     public void setTransaction(Transaction transaction) {
         this.transaction = transaction;
+    }
+
+    @Override
+    public long getOperatedSumInt() {
+        return getPayedSumInt();
+    }
+
+    @Override
+    public int getOperatedSumDec() {
+        return getPayedSumDec();
+    }
+
+    @Override
+    public long getOperatedComissionInt() {
+        return getComissionInt();
+    }
+
+    @Override
+    public int getOperatedComissionDec() {
+        return getComissionDec();
     }
 }

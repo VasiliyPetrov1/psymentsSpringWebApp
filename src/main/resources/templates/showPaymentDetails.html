@@ -7,7 +7,7 @@
           href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
           integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
           crossorigin="anonymous">
-    <link href="../static/css/style.css" th:href="@{/css/style.css}" rel="stylesheet">
+    <link href="../static/css/style.css" rel="stylesheet">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
@@ -33,15 +33,15 @@
             <div class="row pl-1 pr-1 mt-1 mb-1">
                 <div class="col">
                     <p class="emphText" th:text="#{movedSumLabel}">Moved Sum:</p>
-                    <p th:text="${paymentDetailsDto.getMovedSum()}"></p>
+                    <p th:text="${paymentDetailsDto.getMovedSumString()}"></p>
                 </div>
                 <div class="col">
                     <p class="emphText" th:text="#{comissionLabel}">Comission:</p>
-                    <p th:text="${paymentDetailsDto.getComission()}"></p>
+                    <p th:text="${paymentDetailsDto.getComissionString()}"></p>
                 </div>
                 <div class="col">
                     <p class="emphText" th:text="#{totalLabel}">Total:</p>
-                    <p th:text="${paymentDetailsDto.getPayedSum()}"></p>
+                    <p th:text="${paymentDetailsDto.getPayedSumString()}"></p>
                 </div>
             </div>
             <div class="row pl-1 pr-1 mt-1 mb-1">

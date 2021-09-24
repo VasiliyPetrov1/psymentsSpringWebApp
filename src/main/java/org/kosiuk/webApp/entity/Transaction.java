@@ -1,16 +1,24 @@
 package org.kosiuk.webApp.entity;
 
+import org.kosiuk.webApp.util.sumConversion.MoneyIntDecOperator;
+import org.springframework.lang.NonNull;
+
 import javax.persistence.*;
 
 @Entity
 @Table(name = "transaction")
-public class Transaction {
+public class Transaction implements MoneyIntDecOperator {
 
     @EmbeddedId
     private TransactionId transactionId;
 
-    @Column(name = "moved_sum", nullable = false, scale = 2)
-    private Double movedSum;
+    @Column(name = "moved_sum_int", nullable = false)
+    @NonNull
+    private Long movedSumInt;
+
+    @Column(name = "moved_sum_dec", nullable = false)
+    @NonNull
+    private Integer movedSumDec;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumns({
@@ -27,9 +35,10 @@ public class Transaction {
     @MapsId("receiverMoneyAccountId")
     private MoneyAccount receiverMoneyAccount;
 
-    public Transaction(TransactionId transactionId, Double movedSum) {
+    public Transaction(TransactionId transactionId, @NonNull Long movedSumInt, @NonNull Integer movedSumDec) {
         this.transactionId = transactionId;
-        this.movedSum = movedSum;
+        this.movedSumInt = movedSumInt;
+        this.movedSumDec = movedSumDec;
     }
 
     public Transaction() {
@@ -43,12 +52,22 @@ public class Transaction {
         this.transactionId = transactionId;
     }
 
-    public Double getMovedSum() {
-        return movedSum;
+    @NonNull
+    public Long getMovedSumInt() {
+        return movedSumInt;
     }
 
-    public void setMovedSum(Double movedSum) {
-        this.movedSum = movedSum;
+    public void setMovedSumInt(@NonNull Long movedSumInt) {
+        this.movedSumInt = movedSumInt;
+    }
+
+    @NonNull
+    public Integer getMovedSumDec() {
+        return movedSumDec;
+    }
+
+    public void setMovedSumDec(@NonNull Integer movedSumDec) {
+        this.movedSumDec = movedSumDec;
     }
 
     public Payment getPayment() {
@@ -65,5 +84,15 @@ public class Transaction {
 
     public void setReceiverMoneyAccount(MoneyAccount receiverMoneyAccount) {
         this.receiverMoneyAccount = receiverMoneyAccount;
+    }
+
+    @Override
+    public long getOperatedSumInt() {
+        return getMovedSumInt();
+    }
+
+    @Override
+    public int getOperatedSumDec() {
+        return getMovedSumDec();
     }
 }

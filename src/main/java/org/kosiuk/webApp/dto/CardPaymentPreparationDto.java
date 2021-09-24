@@ -1,20 +1,23 @@
 package org.kosiuk.webApp.dto;
 
+import org.kosiuk.webApp.util.sumConversion.MoneyStringOperator;
+import org.kosiuk.webApp.util.visitor.Visitor;
+import org.kosiuk.webApp.util.visitor.VisitorAcceptor;
 import org.springframework.stereotype.Component;
 
 @Component
-public class CardPaymentPreparationDto {
+public class CardPaymentPreparationDto implements MoneyStringOperator, VisitorAcceptor {
 
     private Integer senderMoneyAccountId;
     private Long receiverCreditCardNumber;
-    private Double payedSum;
+    private String payedSumString;
     private String assignment;
 
     public CardPaymentPreparationDto(Integer senderMoneyAccountId, Long receiverCreditCardNumber,
-                                     Double payedSum, String assignment) {
+                                     String payedSum, String assignment) {
         this.senderMoneyAccountId = senderMoneyAccountId;
         this.receiverCreditCardNumber = receiverCreditCardNumber;
-        this.payedSum = payedSum;
+        this.payedSumString = payedSum;
         this.assignment = assignment;
     }
 
@@ -37,12 +40,12 @@ public class CardPaymentPreparationDto {
         this.receiverCreditCardNumber = receiverCreditCardNumber;
     }
 
-    public Double getPayedSum() {
-        return payedSum;
+    public String getPayedSumString() {
+        return payedSumString;
     }
 
-    public void setPayedSum(Double payedSum) {
-        this.payedSum = payedSum;
+    public void setPayedSumString(String payedSumString) {
+        this.payedSumString = payedSumString;
     }
 
     public String getAssignment() {
@@ -51,5 +54,15 @@ public class CardPaymentPreparationDto {
 
     public void setAssignment(String assignment) {
         this.assignment = assignment;
+    }
+
+    @Override
+    public String getOperatedSumString() {
+        return getPayedSumString();
+    }
+
+    @Override
+    public Object accept(Visitor visitor) {
+        return visitor.visitCardPaymentPreparationDto(this);
     }
 }

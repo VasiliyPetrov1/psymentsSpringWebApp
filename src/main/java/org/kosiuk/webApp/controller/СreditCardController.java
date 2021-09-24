@@ -71,11 +71,11 @@ public class СreditCardController {
 
     @PatchMapping("/putMoney/{cardId}")
     public String putMoney(@PathVariable("cardId") Integer cardId,
-                           @RequestParam("sum") double sum,
+                           @RequestParam("sumString") String sumString,
                            Model model) {
         AuthUtil.addRolesToModel(SecurityContextHolder.getContext().getAuthentication(), model);
 
-        Integer ownerId = creditCardService.putMoney(cardId, sum).getUser().getId();
+        Integer ownerId = creditCardService.putMoney(cardId, sumString).getUser().getId();
 
         return "redirect:/app/creditCard/ofUser/" + ownerId;
 

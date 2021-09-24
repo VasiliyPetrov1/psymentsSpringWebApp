@@ -7,7 +7,7 @@
           href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
           integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
           crossorigin="anonymous">
-    <link href="../static/css/style.css" th:href="@{/css/style.css}" rel="stylesheet">
+    <link href="../static/css/style.css" rel="stylesheet">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
@@ -22,30 +22,28 @@
         <input type="hidden" th:field="*{receiverAccountName}">
         <p class="emphText" th:text="#{recAccLabel}">Receiver's account:</p>
         <p th:text="${moneyAccPaymentConfDto.getReceiverAccountName()}"></p>
-        <input type="hidden" th:field="*{payedSum}">
+        <input type="hidden" th:field="*{payedSumString}">
         <p class="emphText" th:text="#{sumToPayLabel}">Sum to pay:</p>
-        <p th:if="${moneyAccPaymentConfDto.getPayedSum() != null and moneyAccPaymentConfDto.getPaymentComission() != null}
-             and not (${moneyAccPrepMessage} == 'You dont have enough money for this payment')"
-           th:text="${moneyAccPaymentConfDto.getPayedSum() - moneyAccPaymentConfDto.getPaymentComission()  + 'UAH'}"></p>
-        <p class="cRed" th:if="${moneyAccPaymentConfDto.getPayedSum() != null and
-        moneyAccPaymentConfDto.getPaymentComission() != null} and (${moneyAccPrepMessage} ==
-        'You dont have enough money for this payment')"
-           th:text="${moneyAccPaymentConfDto.getPayedSum() - moneyAccPaymentConfDto.getPaymentComission()  + 'UAH'}"></p>
+        <p th:if="not (${moneyAccPrepMessage} == 'You dont have enough money for this payment')"
+           th:text="${moneyAccPaymentConfDto.getMovedSumString() + 'UAH'}"></p>
+        <p class="cRed" th:if="(${moneyAccPrepMessage} =='You dont have enough money for this payment')"
+           th:text="${moneyAccPaymentConfDto.getMovedSumString()  + 'UAH'}"></p>
         <p class="emphText" th:text="#{senderPaysComLabel}">Sender pays comission:</p>
         <p th:if="not (${moneyAccPrepMessage} == 'You dont have enough money for this payment')"
-           th:text="${moneyAccPaymentConfDto.getPaymentComission() + 'UAH'}"></p>
+           th:text="${moneyAccPaymentConfDto.getPaymentComissionString() + 'UAH'}"></p>
         <p class="cRed" th:if="${moneyAccPrepMessage} == 'You dont have enough money for this payment'"
-           th:text="${moneyAccPaymentConfDto.getPaymentComission() + 'UAH'}"></p>
+           th:text="${moneyAccPaymentConfDto.getPaymentComissionString() + 'UAH'}"></p>
         <p class="emphText" th:text="#{totToPayLabel}">Total to pay:</p>
         <p th:if="not (${moneyAccPrepMessage} == 'You dont have enough money for this payment')"
-           th:text="${moneyAccPaymentConfDto.getPayedSum() + 'UAH'}"></p>
+           th:text="${moneyAccPaymentConfDto.getPayedSumString() + 'UAH'}"></p>
         <p th:if="${moneyAccPrepMessage} == 'You dont have enough money for this payment'"
-           class="cRed" th:text="${moneyAccPaymentConfDto.getPayedSum()} + 'UAH'"></p>
+           class="cRed" th:text="${moneyAccPaymentConfDto.getPayedSumString()} + 'UAH'"></p>
         <input type="hidden" th:field="*{assignment}">
         <p class="emphText" th:text="#{assignmentLabel}">Assignment:</p>
         <p th:text="${moneyAccPaymentConfDto.getAssignment()}"></p>
-        <input type="hidden" th:field="*{paymentComission}">
-        <input th:if="${moneyAccPrepMessage == null}" type="submit" value="Confirm" class="button btn-success mt-2 mb-2 mr-2">
+        <input type="hidden" th:field="*{paymentComissionString}">
+        <input th:if="${moneyAccPrepMessage == null}" type="submit" th:value="#{confBtn}" class="button btn-success mt-2 mb-2 mr-2">
+        <br>
     </form>
 </div>
 </body>

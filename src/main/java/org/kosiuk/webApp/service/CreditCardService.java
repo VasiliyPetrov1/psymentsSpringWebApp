@@ -4,8 +4,7 @@ import org.kosiuk.webApp.dto.CreditCardConfirmationDto;
 import org.kosiuk.webApp.dto.CreditCardDto;
 import org.kosiuk.webApp.entity.*;
 import org.kosiuk.webApp.repository.CreditCardRepository;
-import org.kosiuk.webApp.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.kosiuk.webApp.util.sumConversion.MoneyIntDecToStringAdapter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -13,12 +12,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 @Service
 public class CreditCardService {
@@ -60,7 +58,7 @@ public class CreditCardService {
         String[] yearMonthDay = expireDateString.split("-");
         LocalDate expireDate = LocalDate.of(Integer.parseInt(yearMonthDay[0]), Integer.parseInt(yearMonthDay[1]),
                 Integer.parseInt(yearMonthDay[2]));
-        CreditCard creditCard = new CreditCard(creditCardId, number, 0.0, cvv, expireDate, paymentSystem);
+        CreditCard creditCard = new CreditCard(creditCardId, number, 0L, 0, cvv, expireDate, paymentSystem);
 
         User user = userService.getUserById(ownerId);
         creditCard.setUser(user);
@@ -92,20 +90,11 @@ public class CreditCardService {
 
     public List<CreditCardDto> getAllUsersCreditCardDtos (User user) {
         List<CreditCard> creditCards = user.getCreditCards();
-        List<CreditCardDto> creditCardDtos = new ArrayList<>();
-        for (CreditCard curCreditCard : creditCards) {
-            creditCardDtos.add(convertCreditCardToDto(curCreditCard));
-        }
-
-        return creditCardDtos;
+        return creditCards.stream().map(creditCard -> convertCreditCardToDto(creditCard)).collect(Collectors.toList());
     }
 
     public List<CreditCardDto> convertCreditCardsToCreditCardDtos(List<CreditCard> creditCards) {
-        List<CreditCardDto> creditCardDtos = new ArrayList<>();
-        for (CreditCard curCreditCard : creditCards) {
-            creditCardDtos.add(convertCreditCardToDto(curCreditCard));
-        }
-        return creditCardDtos;
+        return creditCards.stream().map(creditCard -> convertCreditCardToDto(creditCard)).collect(Collectors.toList());
     }
 
     public CreditCard getCreditCardByNumber(Long number) {
@@ -115,7 +104,7 @@ public class CreditCardService {
     public CreditCardDto convertCreditCardToDto(CreditCard creditCard) {
 
         CreditCardDto creditCardDto = new CreditCardDto(creditCard.getCreditCardId().getCreditCardId(),
-                creditCard.getNumber(), creditCard.getSumAvailable(), creditCard.getCvv(),
+                creditCard.getNumber(), new MoneyIntDecToStringAdapter(creditCard).getOperatedSumString(), creditCard.getCvv(),
                 creditCard.getExpireDate(), creditCard.getPaymentSystem().equals(PaymentSystem.VISA),
                 creditCard.getPaymentSystem().equals(PaymentSystem.MASTERCARD), creditCard.getMoneyAccount().getId());
 
@@ -124,12 +113,35 @@ public class CreditCardService {
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
-    public CreditCard putMoney(Integer id, Double sum) {
+    public CreditCard putMoney(Integer id, String sumString) {
+
+        String[] sumIntDec = sumString.split("\\.");
+
+        long sumInt = Long.parseLong(sumIntDec[0]);
+        int sumDec = Integer.parseInt(sumIntDec[1]);
 
         CreditCard creditCard = creditCardRepository.findByCardId(id);
-        creditCard.setSumAvailable(creditCard.getSumAvailable() + sum);
+        long sumPrevInt = creditCard.getSumAvailableInt();
+        int sumPrevDec = creditCard.getSumAvailableDec();
+        long sum = (sumInt + sumPrevInt) * 100 + sumDec + sumPrevDec;
+        System.err.println(sum);
+        sumPrevDec = (int)(sum % 100);
+        sumPrevInt = (sum - sumPrevDec) / 100;
+        System.err.println(sumPrevDec);
+        creditCard.setSumAvailableInt(sumPrevInt);
+        creditCard.setSumAvailableDec(sumPrevDec);
+
         MoneyAccount moneyAccount = creditCard.getMoneyAccount();
-        moneyAccount.setSum(moneyAccount.getSum() + sum);
+        long curSumAvPrevInt = moneyAccount.getCurSumAvailableInt();
+        int curSumAvPrevDec = moneyAccount.getCurSumAvailableDec();
+        sum = (sumInt + curSumAvPrevInt) * 100 + sumDec + curSumAvPrevDec;
+        int curSumAvailableDec = (int)(sum % 100);
+        long curSumAvailableInt = (sum - sumDec) / 100;
+
+        moneyAccount.setCurSumAvailableInt(curSumAvailableInt);
+        moneyAccount.setCurSumAvailableDec(curSumAvailableDec);
+        moneyAccount.setSumInt(sumPrevInt);
+        moneyAccount.setSumDec(sumPrevDec);
         creditCardRepository.save(creditCard);
         return creditCardRepository.findByCardId(id);
 

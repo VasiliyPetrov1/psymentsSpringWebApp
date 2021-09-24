@@ -14,7 +14,7 @@
 <div class="container mt-4" style="width: 20em; border: 2px solid #999; border-radius: 5px">
     <form th:action="@{/app/creditCard/putMoney/{cardId}(cardId = ${cardId})}" th:method="PATCH">
         <h3 th:text="#{putMoneyOncrCard}"></h3>
-        <input class="form-control" th:type="text" th:name="sum">
+        <input class="form-control" th:type="text" th:name="sumString">
         <input class="btn btn-success" type="submit" th:value="#{put}">
     </form>
 </div>

@@ -2,8 +2,8 @@ package org.kosiuk.webApp.exceptions;
 
 public class NotEnoughMoneyOnAccountException extends Exception{
 
-    private double payedSum;
-    private double paymentComission;
+    private String payedSumString;
+    private String paymentComissionString;
 
     public NotEnoughMoneyOnAccountException() {
     }
@@ -25,19 +25,19 @@ public class NotEnoughMoneyOnAccountException extends Exception{
         super(message, cause, enableSuppression, writableStackTrace);
     }
 
-    public double getPayedSum() {
-        return payedSum;
+    public String getPayedSumString() {
+        return payedSumString;
     }
 
-    public void setPayedSum(double payedSum) {
-        this.payedSum = payedSum;
+    public void setPayedSumString(String payedSumString) {
+        this.payedSumString = payedSumString;
     }
 
-    public double getPaymentComission() {
-        return paymentComission;
+    public String getPaymentComissionString() {
+        return paymentComissionString;
     }
 
-    public void setPaymentComission(double paymentComission) {
-        this.paymentComission = paymentComission;
+    public void setPaymentComissionString(String paymentComissionString) {
+        this.paymentComissionString = paymentComissionString;
     }
 }

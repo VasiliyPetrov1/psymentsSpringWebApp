@@ -20,8 +20,11 @@ public class ValidationVisitor implements Visitor<Map<String, String[]>>{
     private final CompositeValidator<String> passwordValidator;
     private final CompositeValidator<String> messageValidator;
     private final CompositeValidator<List<Boolean>> paymentSystemValidator;
-    CompositeValidator<String> monAccNameValidator;
-
+    private final CompositeValidator<String> monAccNameValidator;
+    private final CompositeValidator<String> cardNumStringValidator;
+    private final CompositeValidator<String> sumStringValidator;
+    private final CompositeValidator<String> assignmentValidator;
+    CompositeValidator<String> moneyAccNumStringValidator;
     public ValidationVisitor(ResourceBundle rb) {
         this.rb = rb;
         usernameValidator = new CompositeValidator<> (
@@ -47,6 +50,25 @@ public class ValidationVisitor implements Visitor<Map<String, String[]>>{
                 new NotBlankValidator(rb.getString("validation.moneyAccount.name.notBlank")),
                 new SizeValidator(0, 45, rb.getString("validation.moneyAccount.name.size"))
         );
+        cardNumStringValidator = new CompositeValidator<>(
+                new SizeValidator(16, 16, rb.getString("validation.payment.cardNum.size")),
+                new IsNumberValidator(rb.getString("validation.payment.cardNum.isNumber")),
+                new NotBlankValidator(rb.getString("validation.payment.cardNum.notBlank"))
+        );
+        sumStringValidator = new CompositeValidator<>(
+                new IsMoneySumValidator(rb.getString("validation.payment.payedSum.isMoneySum")),
+                new NotBlankValidator(rb.getString("validation.payment.payedSum.notBlank"))
+        );
+        assignmentValidator = new CompositeValidator<>(
+                new SizeValidator(1, 45, rb.getString("validation.payment.assignment.size")),
+                new NotBlankValidator(rb.getString("validation.payment.assignment.notBlank"))
+        );
+        moneyAccNumStringValidator = new CompositeValidator<>(
+                new SizeValidator(12, 12, rb.getString("validation.payment.moneyAccNum.size")),
+                new IsNumberValidator(rb.getString("validation.payment.cardNum.isNumber")),
+                new NotBlankValidator(rb.getString("validation.payment.moneyAccNum.notBlank"))
+        );
+
     }
 
     /**
@@ -164,5 +186,41 @@ public class ValidationVisitor implements Visitor<Map<String, String[]>>{
         return validationErrorsMap;
     }
 
+    @Override
+    public Map<String, String[]> visitCardPaymentPreparationDto(CardPaymentPreparationDto cardPaymentPreparationDto) {
+        Map<String, String[]> validationErrorsMap = new HashMap<>();
+        Result result = cardNumStringValidator.validate(String.valueOf(cardPaymentPreparationDto.getReceiverCreditCardNumber()));
+        if (!result.isValid()) {
+            validationErrorsMap.put("cardNumErrors", result.getMessage().split("\n"));
+        }
+        result = sumStringValidator.validate(cardPaymentPreparationDto.getPayedSumString());
+        if (!result.isValid()) {
+            validationErrorsMap.put("sumErrors", result.getMessage().split("\n"));
+        }
+        result = assignmentValidator.validate(cardPaymentPreparationDto.getAssignment());
+        if (!result.isValid()) {
+            validationErrorsMap.put("assignmentErrors", result.getMessage().split("\n"));
+        }
+        return validationErrorsMap;
+    }
 
+    @Override
+    public Map<String, String[]> visitMoneyAccPaymentPreparationDto(MoneyAccPaymentPreparationDto moneyAccPaymentPreparationDto) {
+        Map<String, String[]> validationErrorsMap = new HashMap<>();
+
+        Result result = moneyAccNumStringValidator.validate(String.valueOf(moneyAccPaymentPreparationDto.getReceiverMoneyAccountNumber()));
+        if (!result.isValid()) {
+            validationErrorsMap.put("monAccNumErrors", result.getMessage().split("\n"));
+        }
+        result = sumStringValidator.validate(moneyAccPaymentPreparationDto.getPayedSumString());
+        if (!result.isValid()) {
+            validationErrorsMap.put("sumErrors", result.getMessage().split("\n"));
+        }
+        result = assignmentValidator.validate(moneyAccPaymentPreparationDto.getAssignment());
+        if (!result.isValid()) {
+            validationErrorsMap.put("assignmentErrors", result.getMessage().split("\n"));
+        }
+
+        return validationErrorsMap;
+    }
 }

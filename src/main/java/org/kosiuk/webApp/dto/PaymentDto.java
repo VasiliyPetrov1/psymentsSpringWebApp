@@ -1,25 +1,26 @@
 package org.kosiuk.webApp.dto;
 
+import org.kosiuk.webApp.util.sumConversion.MoneyStringOperator;
 import org.springframework.stereotype.Component;
 
 @Component
-public class PaymentDto {
+public class PaymentDto implements MoneyStringOperator {
 
     private Long number;
     private boolean sent;
     private boolean prepared;
-    private Double payedSum;
-    private Double comission;
+    private String payedSumString;
+    private String comissionString;
     private String assignment;
     private String timeString;
 
-    public PaymentDto(Long number, boolean sent, boolean prepared, Double payedSum,
-                      Double comission, String assignment, String timeString) {
+    public PaymentDto(Long number, boolean sent, boolean prepared, String payedSumString,
+                      String comissionString, String assignment, String timeString) {
         this.number = number;
         this.sent = sent;
         this.prepared = prepared;
-        this.payedSum = payedSum;
-        this.comission = comission;
+        this.payedSumString = payedSumString;
+        this.comissionString = comissionString;
         this.assignment = assignment;
         this.timeString = timeString;
     }
@@ -51,20 +52,20 @@ public class PaymentDto {
         this.prepared = prepared;
     }
 
-    public Double getPayedSum() {
-        return payedSum;
+    public String getPayedSumString() {
+        return payedSumString;
     }
 
-    public void setPayedSum(Double payedSum) {
-        this.payedSum = payedSum;
+    public void setPayedSumString(String payedSumString) {
+        this.payedSumString = payedSumString;
     }
 
-    public Double getComission() {
-        return comission;
+    public String getComissionString() {
+        return comissionString;
     }
 
-    public void setComission(Double comission) {
-        this.comission = comission;
+    public void setComissionString(String comissionString) {
+        this.comissionString = comissionString;
     }
 
     public String getAssignment() {
@@ -81,5 +82,15 @@ public class PaymentDto {
 
     public void setTimeString(String timeString) {
         this.timeString = timeString;
+    }
+
+    @Override
+    public String getOperatedSumString() {
+        return getPayedSumString();
+    }
+
+    @Override
+    public String getOperatedComissionString() {
+        return getComissionString();
     }
 }

@@ -1,5 +1,6 @@
 package org.kosiuk.webApp.entity;
 
+import org.kosiuk.webApp.util.sumConversion.MoneyIntDecOperator;
 import org.springframework.lang.NonNull;
 
 import javax.persistence.*;
@@ -8,7 +9,7 @@ import java.time.LocalDate;
 @Entity
 @Table(name = "credit_card", uniqueConstraints = {@UniqueConstraint(columnNames = "id"),
         @UniqueConstraint(columnNames = "number")})
-public class CreditCard {
+public class CreditCard implements MoneyIntDecOperator {
 
     @EmbeddedId
     private CreditCardId creditCardId;
@@ -17,9 +18,13 @@ public class CreditCard {
     @NonNull
     private Long number;
 
-    @Column(name = "sum_available", scale = 2, nullable = false)
+    @Column(name = "sum_available_int", scale = 2, nullable = false)
     @NonNull
-    private Double sumAvailable;
+    private Long sumAvailableInt;
+
+    @Column(name = "sum_available_dec", scale = 2, nullable = false)
+    @NonNull
+    private Integer sumAvailableDec;
 
     @Column(length = 3, nullable = false)
     @NonNull
@@ -51,20 +56,24 @@ public class CreditCard {
     @OneToOne(mappedBy = "creditCard", cascade = CascadeType.ALL)
     private CreditCardOrder creditCardOrder;
 
-    public CreditCard(CreditCardId creditCardId, @NonNull Long number, @NonNull Double sumAvailable,
-                      @NonNull Integer cvv, @NonNull LocalDate expireDate, @NonNull PaymentSystem paymentSystem) {
+    public CreditCard(CreditCardId creditCardId, @NonNull Long number, @NonNull Long sumAvailableInt,
+                      @NonNull Integer sumAvailableDec, @NonNull Integer cvv, @NonNull LocalDate expireDate,
+                      @NonNull PaymentSystem paymentSystem) {
         this.creditCardId = creditCardId;
         this.number = number;
-        this.sumAvailable = sumAvailable;
+        this.sumAvailableInt = sumAvailableInt;
+        this.sumAvailableDec = sumAvailableDec;
         this.cvv = cvv;
         this.expireDate = expireDate;
         this.paymentSystem = paymentSystem;
     }
 
-    public CreditCard(Long number, Double sumAvailable, Integer cvv, LocalDate expireDate,
-                      PaymentSystem paymentSystem) {
+    public CreditCard(@NonNull Long number, @NonNull Long sumAvailableInt,
+                      @NonNull Integer sumAvailableDec, @NonNull Integer cvv, @NonNull LocalDate expireDate,
+                      @NonNull PaymentSystem paymentSystem) {
         this.number = number;
-        this.sumAvailable = sumAvailable;
+        this.sumAvailableInt = sumAvailableInt;
+        this.sumAvailableDec = sumAvailableDec;
         this.cvv = cvv;
         this.expireDate = expireDate;
         this.paymentSystem = paymentSystem;
@@ -90,12 +99,22 @@ public class CreditCard {
         this.number = number;
     }
 
-    public Double getSumAvailable() {
-        return sumAvailable;
+    @NonNull
+    public Long getSumAvailableInt() {
+        return sumAvailableInt;
     }
 
-    public void setSumAvailable(Double sumAvailable) {
-        this.sumAvailable = sumAvailable;
+    public void setSumAvailableInt(@NonNull Long sumAvailableInt) {
+        this.sumAvailableInt = sumAvailableInt;
+    }
+
+    @NonNull
+    public Integer getSumAvailableDec() {
+        return sumAvailableDec;
+    }
+
+    public void setSumAvailableDec(@NonNull Integer sumAvailableDec) {
+        this.sumAvailableDec = sumAvailableDec;
     }
 
     public Integer getCvv() {
@@ -144,5 +163,15 @@ public class CreditCard {
 
     public void setCreditCardOrder(CreditCardOrder creditCardOrder) {
         this.creditCardOrder = creditCardOrder;
+    }
+
+    @Override
+    public long getOperatedSumInt() {
+        return getSumAvailableInt();
+    }
+
+    @Override
+    public int getOperatedSumDec() {
+        return getSumAvailableDec();
     }
 }

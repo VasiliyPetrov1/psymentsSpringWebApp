@@ -7,16 +7,21 @@ public class PaymentAndTransactionDto {
 
     Integer senderAccountId;
     Integer receiverAccountId;
-    Double payedSum;
-    Double comission;
+    Long payedSumInt;
+    Integer payedSumDec;
+    Long comissionInt;
+    Integer comissionDec;
     String assignment;
 
     public PaymentAndTransactionDto(Integer senderAccountId, Integer receiverAccountId,
-                                    Double payedSum, Double comission, String assignment) {
+                                    Long payedSumInt, Integer payedSumDec, Long comissionInt,
+                                    Integer comissionDec, String assignment) {
         this.senderAccountId = senderAccountId;
         this.receiverAccountId = receiverAccountId;
-        this.payedSum = payedSum;
-        this.comission = comission;
+        this.payedSumInt = payedSumInt;
+        this.payedSumDec = payedSumDec;
+        this.comissionInt = comissionInt;
+        this.comissionDec = comissionDec;
         this.assignment = assignment;
     }
 
@@ -40,20 +45,36 @@ public class PaymentAndTransactionDto {
         this.receiverAccountId = receiverAccountId;
     }
 
-    public Double getPayedSum() {
-        return payedSum;
+    public Long getPayedSumInt() {
+        return payedSumInt;
     }
 
-    public void setPayedSum(Double payedSum) {
-        this.payedSum = payedSum;
+    public void setPayedSumInt(Long payedSumInt) {
+        this.payedSumInt = payedSumInt;
     }
 
-    public Double getComission() {
-        return comission;
+    public Integer getPayedSumDec() {
+        return payedSumDec;
     }
 
-    public void setComission(Double comission) {
-        this.comission = comission;
+    public void setPayedSumDec(Integer payedSumDec) {
+        this.payedSumDec = payedSumDec;
+    }
+
+    public Long getComissionInt() {
+        return comissionInt;
+    }
+
+    public void setComissionInt(Long comissionInt) {
+        this.comissionInt = comissionInt;
+    }
+
+    public Integer getComissionDec() {
+        return comissionDec;
+    }
+
+    public void setComissionDec(Integer comissionDec) {
+        this.comissionDec = comissionDec;
     }
 
     public String getAssignment() {
