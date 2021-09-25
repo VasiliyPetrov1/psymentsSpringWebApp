@@ -14,9 +14,14 @@
     <div class="container mt-4 pr-2 pl-2 pt-1 pb-1" style="width: 30em; border: 2px solid #999; border-radius: 5px">
         <p th:text="${paymentPrepMessage}" class="cRed"></p>
         <h2 th:text="#{paymToCrCard}">Payment to credit card</h2>
-        <form th:method="POST" th:action="@{/app/payment/toCard}" th:object="${cardPaymentConfDto}">
+        <h3 th:text="${'№'+ cardPaymentConfDto.getPaymentNumber()}"></h3>
+        <div class="row">
+            <div class="col">
+        <form th:method="PUT" th:action="@{/app/payment/toCard}" th:object="${cardPaymentConfDto}">
             <input type="hidden" th:field="*{senderMoneyAccountId}">
             <input type="hidden" th:field="*{receiverCreditCardNumber}">
+            <input type="hidden" th:field="*{paymentNumber}">
+            <input type="hidden" th:field="*{receiverMoneyAccountId}">
             <p class="emphText" th:text="#{toCardLabel}">To card:</p>
             <p th:text="${cardPaymentConfDto.getReceiverCreditCardNumber()}"></p>
             <input type="hidden" th:field="*{receiverAccountName}">
@@ -28,6 +33,7 @@
                th:text="${cardPaymentConfDto.getMovedSumString()  + 'UAH'}"></p>
             <p class="cRed" th:if="(${paymentPrepMessage} == 'You dont have enough money for this payment')"
                th:text="${cardPaymentConfDto.getMovedSumString()  + 'UAH'}"></p>
+            <input type="hidden" th:field="*{paymentComissionString}">
             <p class="emphText" th:text="#{senderPaysComLabel}">Sender pays comission:</p>
             <p th:if="not (${paymentPrepMessage} == 'You dont have enough money for this payment')"
                th:text="${cardPaymentConfDto.getPaymentComissionString() + 'UAH'}"></p>
@@ -41,9 +47,20 @@
             <input type="hidden" th:field="*{assignment}">
             <p class="emphText" th:text="#{assignmentLabel}">Assignment:</p>
             <p th:text="${cardPaymentConfDto.getAssignment()}"></p>
-            <input type="hidden" th:field="*{paymentComissionString}">
             <input th:if="${paymentPrepMessage == null}" type="submit" th:value="#{confBtn}" class="button btn-success mt-2 mb-2 mr-2">
         </form>
+            </div>
+            <div class="col mb-2">
+                <div class="d-flex flex-column justify-content-end align-items-end mr-3">
+                <form th:method="DELETE" th:action="@{/app/payment}">
+                    <input type="hidden" name="senderMoneyAccId" th:value="${cardPaymentConfDto.getSenderMoneyAccountId()}">
+                    <input type="hidden" name="paymentNumber" th:value="${cardPaymentConfDto.getPaymentNumber()}">
+                    <input type="hidden" name="payedSumString" th:value="${cardPaymentConfDto.getPayedSumString()}">
+                    <input class="btn btn-warning" type="submit" th:value="#{cancel}">
+                </form>
+                </div>
+            </div>
+        </div>
     </div>
 </body>
 </html>

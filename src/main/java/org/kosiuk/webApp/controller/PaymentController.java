@@ -170,6 +170,8 @@ public class PaymentController {
             cardPaymentConfirmationDto.setAssignment(cardPaymentConfDto.getAssignment());
             cardPaymentConfirmationDto.setMovedSumString(cardPaymentConfDto.getMovedSumString());
             cardPaymentConfirmationDto.setPaymentComissionString(cardPaymentConfDto.getPaymentComissionString());
+            cardPaymentConfirmationDto.setReceiverMoneyAccountId(cardPaymentConfDto.getReceiverMoneyAccountId());
+            cardPaymentConfirmationDto.setPaymentNumber(cardPaymentConfDto.getPaymentNumber());
         } catch (NoCreditCardByNumberException e) {
             model.addAttribute("paymentPrepMessage", rb.getString("verification.payment.noCard.byNumber"));
             model.addAttribute("errors", new HashMap<String, String[]>());
@@ -192,14 +194,6 @@ public class PaymentController {
 
         return "toCardPaymentConfForm";
 
-    }
-
-    @PostMapping("toCard")
-    public String confirmToCardPayment(@ModelAttribute("cardPaymentConfDto") CardPaymentConfirmationDto cardPaymentConfDto,
-                                       Model model) {
-        AuthUtil.addRolesToModel(SecurityContextHolder.getContext().getAuthentication(), model);
-        paymentService.confirmToCardPayment(cardPaymentConfDto);
-        return "redirect:/app/payment/" + cardPaymentConfDto.getSenderMoneyAccountId();
     }
 
     @GetMapping("/getToAccountPaymentForm/{senderAccId}")
@@ -238,6 +232,8 @@ public class PaymentController {
             moneyAccPaymentConfirmationDto.setAssignment(moneyAccPaymentConfDto.getAssignment());
             moneyAccPaymentConfirmationDto.setMovedSumString(moneyAccPaymentConfDto.getMovedSumString());
             moneyAccPaymentConfirmationDto.setPaymentComissionString(moneyAccPaymentConfDto.getPaymentComissionString());
+            moneyAccPaymentConfirmationDto.setReceiverMoneyAccountId(moneyAccPaymentConfDto.getReceiverMoneyAccountId());
+            moneyAccPaymentConfirmationDto.setPaymentNumber(moneyAccPaymentConfDto.getPaymentNumber());
         } catch (NoMoneyAccountByNumberException e) {
             model.addAttribute("moneyAccPrepMessage", rb.getString("verification.payment.noCard.byNumber"));
             model.addAttribute("errors", new HashMap<String, String[]>());
@@ -261,7 +257,15 @@ public class PaymentController {
         return "toAccountPaymentConfForm";
     }
 
-    @PostMapping("toAccount")
+    @PutMapping("toCard")
+    public String confirmToCardPayment(@ModelAttribute("cardPaymentConfDto") CardPaymentConfirmationDto cardPaymentConfDto,
+                                       Model model) {
+        AuthUtil.addRolesToModel(SecurityContextHolder.getContext().getAuthentication(), model);
+        paymentService.confirmToCardPayment(cardPaymentConfDto);
+        return "redirect:/app/payment/" + cardPaymentConfDto.getSenderMoneyAccountId();
+    }
+
+    @PutMapping("toAccount")
     public String confirmToMoneyAccountPayment(@ModelAttribute("moneyAccPaymentConfDto")
                                                MoneyAccPaymentConfirmationDto moneyAccPaymentConfDto,
                                                Model model) {
@@ -271,12 +275,26 @@ public class PaymentController {
         return "redirect:/app/payment/" + moneyAccPaymentConfDto.getSenderMoneyAccountId();
     }
 
+    @DeleteMapping()
+    public String cancelPayment(@RequestParam("senderMoneyAccId") Integer senderMoneyAccId,
+                                @RequestParam("paymentNumber") Long paymentNumber,
+                                @RequestParam("payedSumString") String payedSumString,
+                                Model model) {
+        PaymentCancellationDto paymentCancellationDto = new PaymentCancellationDto(senderMoneyAccId, paymentNumber,
+                payedSumString);
+
+        paymentService.cancelPayment(paymentCancellationDto);
+
+        return "redirect:/app";
+    }
+
     @GetMapping("/paymentDetails/{paymentNum}")
     public String showPaymentDetails(@PathVariable("paymentNum") Long paymentNum,
                                      Model model) {
         AuthUtil.addRolesToModel(SecurityContextHolder.getContext().getAuthentication(), model);
+        ResourceBundle rb = ResourceBundle.getBundle("messages", LocaleContextHolder.getLocale());
         try {
-            PaymentDetailsDto paymentDetailsDto = paymentService.getPaymentDetails(paymentNum);
+            PaymentDetailsDto paymentDetailsDto = paymentService.getPaymentDetails(paymentNum, rb);
             model.addAttribute("paymentDetailsDto", paymentDetailsDto);
         } catch (NoSuchElementException | NullPointerException e) {
             model.addAttribute("paymentDetailsMessage", "There's no payment with given number.");

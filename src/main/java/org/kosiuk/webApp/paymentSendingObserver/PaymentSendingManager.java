@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 
+@Deprecated
 public class PaymentSendingManager {
 
     private final Map<Integer, Boolean> freeMoneyAccounts;

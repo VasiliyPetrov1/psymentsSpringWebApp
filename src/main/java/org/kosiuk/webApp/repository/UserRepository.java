@@ -25,12 +25,6 @@ public interface UserRepository extends CrudRepository<User, Integer> {
     void updateUserLimited(@Param("id") Integer id, @Param("username") String username, @Param("email") String email,
                            @Param("password") String password);
 
-    /*@Transactional
-    @Query(value = "UPDATE role SET roles = :roles WHERE account_id = :account_id", nativeQuery = true)
-    @Modifying
-    void updateRoles(@Param("account_id") Integer account_id, @Param("roles") String roles);
-    */
-
     @Transactional
     @Query(value = "INSERT INTO role (account_id, roles) VALUES(:account_id, :roles) ", nativeQuery = true)
     @Modifying

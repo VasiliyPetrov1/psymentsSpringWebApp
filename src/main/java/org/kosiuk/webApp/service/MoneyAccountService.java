@@ -9,10 +9,10 @@ import org.kosiuk.webApp.entity.MoneyAccountActStatus;
 import org.kosiuk.webApp.entity.User;
 import org.kosiuk.webApp.exceptions.UnsafeMoneyAccCreationException;
 import org.kosiuk.webApp.repository.MoneyAccountRepository;
+import org.kosiuk.webApp.util.concurrent.MoneyAccountMonitor;
 import org.kosiuk.webApp.util.sumConversion.MoneyIntDecToStringAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.annotation.Order;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -21,9 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -38,6 +36,7 @@ public class MoneyAccountService {
     public int pageSize;
     public boolean isAnyMoneyAccOnCreation = false;
     public final static String NO_OWNER = "No owner registered in this payment system";
+    private final Map<Integer, MoneyAccountMonitor> moneyAccountMonitorsMap;
 
     @Autowired
     public MoneyAccountService(MoneyAccountRepository moneyAccountRepository,
@@ -45,6 +44,12 @@ public class MoneyAccountService {
         this.moneyAccountRepository = moneyAccountRepository;
         this.addPropService = addPropService;
         this.userService = userService;
+        moneyAccountMonitorsMap = new HashMap<>();
+        List<Integer> moneyAccountIds = ((List<MoneyAccount>)moneyAccountRepository.findAll()).stream().
+                map(moneyAccount -> moneyAccount.getId()).collect(Collectors.toList());
+        for (Integer curMoneyAccountId : moneyAccountIds) {
+            moneyAccountMonitorsMap.put(curMoneyAccountId, new MoneyAccountMonitor(curMoneyAccountId));
+        }
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
@@ -80,11 +85,11 @@ public class MoneyAccountService {
             // the user won't have any blocked accounts
             userService.save(owner);
         }
-
         moneyAccountRepository.deleteById(id);
     }
 
     public MoneyAccount save(MoneyAccount moneyAccount) {
+        moneyAccountMonitorsMap.put(moneyAccount.getId(), new MoneyAccountMonitor(moneyAccount.getId()));
         moneyAccountRepository.save(moneyAccount);
         return moneyAccountRepository.findById(moneyAccount.getId()).get();
     }
@@ -108,20 +113,6 @@ public class MoneyAccountService {
         }
         return moneyAccountRepository.findAll(pageable);
     }
-
-    /*public Page<MoneyAccount> getAllUsersMoneyAccountsPage(int userId, int pageNumber, String sortParameter) {
-        Pageable pageable;
-        if (sortParameter.equals("none")) {
-            pageable = PageRequest.of(pageNumber - 1, pageSize);
-        } else {
-            pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.Direction.ASC, sortParameter);
-        }
-        User user = userService.getUserById(userId);
-        if(user == null) {
-            throw new NoSuchElementException();
-        }
-        return moneyAccountRepository.findAllByUser(user, pageable);
-    }*/
 
     @Transactional(propagation = Propagation.REQUIRED)
     public MoneyAccountDto getMoneyAccountDtoById(Integer id) {
@@ -275,4 +266,7 @@ public class MoneyAccountService {
         isAnyMoneyAccOnCreation = false;
     }
 
+    public Map<Integer, MoneyAccountMonitor> getMoneyAccountMonitorsMap() {
+        return moneyAccountMonitorsMap;
+    }
 }

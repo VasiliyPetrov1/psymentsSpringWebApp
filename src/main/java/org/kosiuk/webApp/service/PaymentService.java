@@ -3,11 +3,9 @@ package org.kosiuk.webApp.service;
 import org.kosiuk.webApp.dto.*;
 import org.kosiuk.webApp.entity.*;
 import org.kosiuk.webApp.exceptions.*;
-import org.kosiuk.webApp.paymentSendingObserver.PaymentSendingDto;
-import org.kosiuk.webApp.paymentSendingObserver.PaymentSendingManager;
 import org.kosiuk.webApp.repository.PaymentRepository;
+import org.kosiuk.webApp.util.concurrent.MoneyAccountMonitor;
 import org.kosiuk.webApp.util.sumConversion.MoneyIntDecToStringAdapter;
-import org.kosiuk.webApp.util.sumConversion.MoneyStringOperator;
 import org.kosiuk.webApp.util.sumConversion.MoneyStringToIntDecAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -37,8 +35,7 @@ public class PaymentService {
     private final MoneyAccountService moneyAccountService;
     private final AdditionalPropertiesService addPropService;
     private final TransactionService transactionService;
-    private final Queue<PaymentAndTransactionDto> paymentsOnNumberSetUpQueue;
-    private final PaymentSendingManager paymentSendingManager;
+    private final Queue<PaymentSendingDto> paymentsOnNumberSetUpQueue;
     @Value("${application.paymentsPageSize}")
     private int pageSize;
 
@@ -54,7 +51,6 @@ public class PaymentService {
         this.paymentNumSetupPermission = true;
         this.paymentsOnNumberSetUpQueue = new ArrayDeque<>();
         this.isPaymentDtoOnAdding = false;
-        this.paymentSendingManager = PaymentSendingManager.getInstance();
     }
 
     public List<PaymentDto> getAllPaymentDtos() {
@@ -130,9 +126,9 @@ public class PaymentService {
     }
 
 
-    public PaymentDetailsDto getPaymentDetails(Long paymentNum) {
+    public PaymentDetailsDto getPaymentDetails(Long paymentNum, ResourceBundle rb) {
         Payment payment = paymentRepository.findByNumber(paymentNum);
-        return convertPaymentToPaymentDetailsDto(payment);
+        return convertPaymentToPaymentDetailsDto(payment, rb);
     }
 
     public PaymentDto convertPaymentToDto(Payment payment) {
@@ -154,15 +150,20 @@ public class PaymentService {
         return payments.stream().map(payment -> convertPaymentToDto(payment)).collect(Collectors.toList());
     }
 
-    public PaymentDetailsDto convertPaymentToPaymentDetailsDto(Payment payment) {
+    public PaymentDetailsDto convertPaymentToPaymentDetailsDto(Payment payment, ResourceBundle rb) {
         LocalDateTime paymentTime = payment.getTime();
         String timeString = paymentTime.toString().substring(0, 19);
         String senderAccountName = payment.getMoneyAccount().getName();
-        String receiverAccountName = null;
-        String movedSumString = null;
+        String receiverAccountName = "";
+        String movedSumString = "";
         Transaction paymentTransaction = payment.getTransaction();
         if (paymentTransaction != null) {
-            receiverAccountName = paymentTransaction.getReceiverMoneyAccount().getName();
+            MoneyAccount receiverMoneyAccount = paymentTransaction.getReceiverMoneyAccount();
+            if (receiverMoneyAccount != null) {
+                receiverAccountName = receiverMoneyAccount.getName();
+            } else {
+                receiverAccountName = rb.getString("noRecMonAcc");
+            }
             movedSumString = new MoneyIntDecToStringAdapter(paymentTransaction).getOperatedSumString();
         }
 
@@ -229,11 +230,18 @@ public class PaymentService {
         senderMoneyAccount.setCurSumAvailableInt(curSumAvailableInt);
         senderMoneyAccount.setCurSumAvailableDec(curSumAvailableDec);
 
-        moneyAccountService.save(senderMoneyAccount);
+        long paymentNum = addPropService.getNextPaymentNum();
+        PaymentId paymentId = new PaymentId(senderMoneyAccountId, paymentNum);
 
+        Payment payment = new Payment(paymentId, PaymentStatus.PREPARED, totalInt, totalDec, paymentComissionInt, paymentComissionDec,
+                paymentPreparationDto.getAssignment(), LocalDateTime.now());
 
-        return new CardPaymentConfirmationDto(senderMoneyAccountId,
-                receiverCardNum, receiverMoneyAccount.getName(), payedSumString, paymentPreparationDto.getAssignment(),
+        payment.setMoneyAccount(senderMoneyAccount);
+
+        paymentRepository.save(payment);
+
+        return new CardPaymentConfirmationDto(senderMoneyAccountId, receiverMoneyAccount.getId(),
+                receiverCardNum, paymentNum, receiverMoneyAccount.getName(), payedSumString, paymentPreparationDto.getAssignment(),
                 movedSumString, paymentComissionString);
     }
 
@@ -294,93 +302,54 @@ public class PaymentService {
         long paymentNum = addPropService.getNextPaymentNum();
         PaymentId paymentId = new PaymentId(senderMoneyAccountId, paymentNum);
 
-        Payment payment = new Payment(totalInt, totalDec, paymentComissionInt, paymentComissionDec,
-                paymentPreparationDto.getAssignment(), );
+        Payment payment = new Payment(paymentId, PaymentStatus.PREPARED, totalInt, totalDec, paymentComissionInt, paymentComissionDec,
+                paymentPreparationDto.getAssignment(), LocalDateTime.now());
 
-        moneyAccountService.save(senderMoneyAccount);
+        payment.setMoneyAccount(senderMoneyAccount);
 
-        return new MoneyAccPaymentConfirmationDto(senderMoneyAccountId, receiverMoneyAccNum,
-                        receiverMoneyAccount.getName(), totalString,  paymentPreparationDto.getAssignment(),
-                        payedSumString, paymentComissionString);
+        paymentRepository.save(payment);
+
+        return new MoneyAccPaymentConfirmationDto(senderMoneyAccountId, receiverMoneyAccount.getId(), receiverMoneyAccNum,
+                paymentNum, receiverMoneyAccount.getName(), totalString,  paymentPreparationDto.getAssignment(),
+                payedSumString, paymentComissionString);
     }
 
 
     @Transactional(propagation = Propagation.REQUIRED)
     public void confirmToCardPayment(CardPaymentConfirmationDto cardPaymentConfirmationDto) {
-        PaymentAndTransactionDto paymentAndTransactionDto =
-                convertCardPaymConfDtoToPaymTransDto(cardPaymentConfirmationDto);
+        PaymentSendingDto paymentSendingDto =
+                convertCardPaymConfDtoToPaymSendDto(cardPaymentConfirmationDto);
 
-        savePayment(paymentAndTransactionDto);
+        savePayment(paymentSendingDto);
     }
 
-    @Transactional(propagation = Propagation.REQUIRED)
     public void confirmToMoneyAccountPayment(MoneyAccPaymentConfirmationDto moneyAccPaymentConfirmationDto) {
-        PaymentAndTransactionDto paymentAndTransactionDto =
-                convertMoneyAccPaymConfDtoToPaymTransDto(moneyAccPaymentConfirmationDto);
+        PaymentSendingDto paymentSendingDto =
+                convertMoneyAccPaymConfDtoToPaymSendDto(moneyAccPaymentConfirmationDto);
 
-        savePayment(paymentAndTransactionDto);
+        savePayment(paymentSendingDto);
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
-    public void savePayment(PaymentAndTransactionDto paymentAndTransactionDto) {
-        if (paymentNumSetupPermission) {
-            paymentNumSetupPermission = false;
-            long paymentNum = addPropService.getNextPaymentNum();
-            Payment preparedPayment = new Payment();
+    public void savePayment(PaymentSendingDto paymentSendingDto) {
 
-            PaymentId confPaymentId = new PaymentId();
-            confPaymentId.setNumber(paymentNum);
-            Integer senderMoneyAccId = paymentAndTransactionDto.getSenderAccountId();
-            confPaymentId.setSenderMoneyAccountId(senderMoneyAccId);
-            MoneyAccount senderMoneyAccount = moneyAccountService.getMoneyAccountById(senderMoneyAccId);
-            preparedPayment.setMoneyAccount(senderMoneyAccount);
-            preparedPayment.setPaymentId(confPaymentId);
+        Integer receiverMoneyAccId = paymentSendingDto.getReceiverAccountId();
+        Integer senderMoneyAccId = paymentSendingDto.getSenderAccountId();
 
-            preparedPayment.setPayedSumInt(paymentAndTransactionDto.getPayedSumInt());
-            preparedPayment.setPayedSumDec(paymentAndTransactionDto.getPayedSumDec());
-            preparedPayment.setComissionInt(paymentAndTransactionDto.getComissionInt());
-            preparedPayment.setComissionDec(paymentAndTransactionDto.getComissionDec());
-            preparedPayment.setStatus(PaymentStatus.PREPARED);
-            preparedPayment.setAssignment(paymentAndTransactionDto.getAssignment());
-            preparedPayment.setTime(LocalDateTime.now());
-            paymentRepository.save(preparedPayment); // payment was saved as prepared and will be used later
-            // for creating transaction and altering moneySum on accounts
+        Map<Integer, MoneyAccountMonitor> moneyAccountMonitorsMap = moneyAccountService.getMoneyAccountMonitorsMap();
 
-            paymentNumSetupPermission = true;
+        MoneyAccountMonitor monitor1 = receiverMoneyAccId < senderMoneyAccId ?
+                moneyAccountMonitorsMap.get(senderMoneyAccId) : moneyAccountMonitorsMap.get(receiverMoneyAccId);
 
-            PaymentSendingDto paymentSendingDto = new PaymentSendingDto();
-            paymentSendingDto.setPaymentNumber(paymentNum);
-            paymentSendingDto.setSenderAccountId(senderMoneyAccId);
-            Integer receiverMoneyAccId = paymentAndTransactionDto.getReceiverAccountId();
-            paymentSendingDto.setReceiverAccountId(receiverMoneyAccId);
-            paymentSendingDto.setPaymentSendingManager(paymentSendingManager);
-            paymentSendingDto.setPaymentService(this);
+        MoneyAccountMonitor monitor2 = receiverMoneyAccId > senderMoneyAccId ?
+                moneyAccountMonitorsMap.get(senderMoneyAccId) : moneyAccountMonitorsMap.get(receiverMoneyAccId);
 
-            //sendPayment(paymentSendingDto);
-
-            paymentSendingManager.subscribe(paymentSendingDto, senderMoneyAccId);
-            paymentSendingManager.subscribe(paymentSendingDto, receiverMoneyAccId);
-
-            paymentSendingDto.send();
-
-            PaymentAndTransactionDto curDtoToSave = paymentsOnNumberSetUpQueue.poll();
-            if (curDtoToSave != null) {
-                savePayment(curDtoToSave);
-            } else if (isPaymentDtoOnAdding) {
-                while (isPaymentDtoOnAdding) {
-                }
-                curDtoToSave = paymentsOnNumberSetUpQueue.poll();
-                if (curDtoToSave != null) {
-                    savePayment(curDtoToSave);
-                }
-            }
-        } else {
-            synchronized (paymentsOnNumberSetUpQueue) {
-                isPaymentDtoOnAdding = true;
-                paymentsOnNumberSetUpQueue.add(paymentAndTransactionDto);
-                isPaymentDtoOnAdding = false;
+        synchronized (monitor1) {
+            synchronized (monitor2) {
+                sendPayment(paymentSendingDto);
             }
         }
+
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
@@ -388,12 +357,11 @@ public class PaymentService {
         Long paymentNum = paymentSendingDto.getPaymentNumber();
         Integer senderMoneyAccountId = paymentSendingDto.getSenderAccountId();
         Integer receiverMoneyAccountId = paymentSendingDto.getReceiverAccountId();
-        Payment paymentToSend = paymentRepository.findByNumber(paymentNum);
 
-        long totalInt = paymentToSend.getPayedSumInt();
-        int totalDec = paymentToSend.getPayedSumDec();
-        long comissionInt = paymentToSend.getComissionInt();
-        int comissionDec = paymentToSend.getComissionDec();
+        long totalInt = paymentSendingDto.getPayedSumInt();
+        int totalDec = paymentSendingDto.getPayedSumDec();
+        long comissionInt = paymentSendingDto.getComissionInt();
+        int comissionDec = paymentSendingDto.getComissionDec();
         long movedSum = totalInt * 100 - comissionInt * 100 + totalDec - comissionDec;
         int movedSumDec = (int) (movedSum % 100);
         long movedSumInt = (movedSum - movedSumDec) / 100;
@@ -439,65 +407,81 @@ public class PaymentService {
 
         receiverMoneyAccount.setCreditCard(receiverCreditCard);
 
+        PaymentId paymentId = new PaymentId(paymentSendingDto.getSenderAccountId(), paymentSendingDto.getPaymentNumber());
+        Payment paymentToSend = new Payment(paymentId, PaymentStatus.SENT, totalInt, totalDec, comissionInt,
+                comissionDec, paymentSendingDto.getAssignment(), LocalDateTime.now());
+
         paymentToSend.setMoneyAccount(senderMoneyAccount);
-        paymentToSend.setStatus(PaymentStatus.SENT);
-        paymentToSend.setTime(LocalDateTime.now());
 
-        Transaction transaction = new Transaction();
+        TransactionId transactionId = new TransactionId(paymentNum, senderMoneyAccountId, receiverMoneyAccountId);
 
-        TransactionId transactionId = new TransactionId();
-        transactionId.setPaymentNumber(paymentNum);
-        transactionId.setSenderMoneyAccountId(senderMoneyAccountId);
-        transactionId.setReceiverMoneyAccountId(receiverMoneyAccountId);
+        Transaction transaction = new Transaction(transactionId, movedSumInt, movedSumDec, paymentToSend, receiverMoneyAccount);
 
-        transaction.setTransactionId(transactionId);
-        transaction.setMovedSumInt(movedSumInt);
-        transaction.setMovedSumDec(movedSumDec);
-        transaction.setPayment(paymentToSend);
-        transaction.setReceiverMoneyAccount(receiverMoneyAccount);
         transactionService.save(transaction);
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
-    public PaymentAndTransactionDto convertCardPaymConfDtoToPaymTransDto(CardPaymentConfirmationDto
-                                                                                 cardPaymentConfirmationDto) {
+    public void cancelPayment(PaymentCancellationDto paymentCancellationDto) {
+        Integer senderMoneyAccountId = paymentCancellationDto.getSenderMoneyAccountId();
+        Long paymentNumber = paymentCancellationDto.getPaymentNumber();
 
-        PaymentAndTransactionDto paymentAndTransactionDto = new PaymentAndTransactionDto();
-        Long receiverCreditCardNum = cardPaymentConfirmationDto.getReceiverCreditCardNumber();
-        Integer receiverMoneyAccId = creditCardService.getCreditCardByNumber(receiverCreditCardNum).
-                getMoneyAccount().getId();
-        paymentAndTransactionDto.setSenderAccountId(cardPaymentConfirmationDto.getSenderMoneyAccountId());
-        paymentAndTransactionDto.setReceiverAccountId(receiverMoneyAccId);
+        MoneyStringToIntDecAdapter paymentMoneyAdapter = new MoneyStringToIntDecAdapter(paymentCancellationDto);
 
-        MoneyStringToIntDecAdapter cardToPaymentTransMoneyAdapter = new MoneyStringToIntDecAdapter(cardPaymentConfirmationDto);
+        long payedSumInt = paymentMoneyAdapter.getOperatedSumInt();
+        int payedSumDec = paymentMoneyAdapter.getOperatedSumDec();
+        MoneyAccount senderMoneyAccount = moneyAccountService.getMoneyAccountById(senderMoneyAccountId);
 
-        paymentAndTransactionDto.setPayedSumInt(cardToPaymentTransMoneyAdapter.getOperatedSumInt());
-        paymentAndTransactionDto.setPayedSumDec(cardToPaymentTransMoneyAdapter.getOperatedSumDec());
-        paymentAndTransactionDto.setComissionInt(cardToPaymentTransMoneyAdapter.getOperatedComissionInt());
-        paymentAndTransactionDto.setComissionDec(cardToPaymentTransMoneyAdapter.getOperatedComissionDec());
-        paymentAndTransactionDto.setAssignment(cardPaymentConfirmationDto.getAssignment());
+        long curSumAvailableInt = (senderMoneyAccount.getCurSumAvailableInt() + payedSumInt) * 100
+                + senderMoneyAccount.getCurSumAvailableDec() + payedSumDec;
+        int curSumAvailableDec = (int)(curSumAvailableInt % 100);
+        curSumAvailableInt = (curSumAvailableInt - curSumAvailableDec) / 100;
+        senderMoneyAccount.setCurSumAvailableInt(curSumAvailableInt);
+        senderMoneyAccount.setCurSumAvailableDec(curSumAvailableDec);
 
-        return paymentAndTransactionDto;
+        moneyAccountService.save(senderMoneyAccount);
+        paymentRepository.deleteById(new PaymentId(senderMoneyAccountId, paymentNumber));
+
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
-    public PaymentAndTransactionDto convertMoneyAccPaymConfDtoToPaymTransDto(MoneyAccPaymentConfirmationDto
+    public PaymentSendingDto convertCardPaymConfDtoToPaymSendDto(CardPaymentConfirmationDto
+                                                                                 cardPaymentConfirmationDto) {
+
+        PaymentSendingDto paymentSendingDto = new PaymentSendingDto();
+        paymentSendingDto.setSenderAccountId(cardPaymentConfirmationDto.getSenderMoneyAccountId());
+        paymentSendingDto.setReceiverAccountId(cardPaymentConfirmationDto.getReceiverMoneyAccountId());
+        paymentSendingDto.setPaymentNumber(cardPaymentConfirmationDto.getPaymentNumber());
+
+        MoneyStringToIntDecAdapter cardToPaymentTransMoneyAdapter = new MoneyStringToIntDecAdapter(cardPaymentConfirmationDto);
+
+        paymentSendingDto.setPayedSumInt(cardToPaymentTransMoneyAdapter.getOperatedSumInt());
+        paymentSendingDto.setPayedSumDec(cardToPaymentTransMoneyAdapter.getOperatedSumDec());
+        paymentSendingDto.setComissionInt(cardToPaymentTransMoneyAdapter.getOperatedComissionInt());
+        paymentSendingDto.setComissionDec(cardToPaymentTransMoneyAdapter.getOperatedComissionDec());
+
+        paymentSendingDto.setAssignment(cardPaymentConfirmationDto.getAssignment());
+
+        return paymentSendingDto;
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    public PaymentSendingDto convertMoneyAccPaymConfDtoToPaymSendDto(MoneyAccPaymentConfirmationDto
                                                                                      moneyAccPaymentConfirmationDto) {
-        PaymentAndTransactionDto paymentAndTransactionDto = new PaymentAndTransactionDto();
-        Long receiverMoneyAccNum = moneyAccPaymentConfirmationDto.getReceiverMoneyAccountNumber();
-        Integer receiverMoneyAccId = moneyAccountService.getMoneyAccountByNumber(receiverMoneyAccNum).getId();
-        paymentAndTransactionDto.setSenderAccountId(moneyAccPaymentConfirmationDto.getSenderMoneyAccountId());
-        paymentAndTransactionDto.setReceiverAccountId(receiverMoneyAccId);
+        PaymentSendingDto paymentSendingDto = new PaymentSendingDto();
+        paymentSendingDto.setSenderAccountId(moneyAccPaymentConfirmationDto.getSenderMoneyAccountId());
+        paymentSendingDto.setReceiverAccountId(moneyAccPaymentConfirmationDto.getReceiverMoneyAccountId());
+        paymentSendingDto.setPaymentNumber(moneyAccPaymentConfirmationDto.getPaymentNumber());
 
         MoneyStringToIntDecAdapter moneyAccToPaymentTransMoneyAdapter = new MoneyStringToIntDecAdapter(moneyAccPaymentConfirmationDto);
 
-        paymentAndTransactionDto.setPayedSumInt(moneyAccToPaymentTransMoneyAdapter.getOperatedSumInt());
-        paymentAndTransactionDto.setPayedSumDec(moneyAccToPaymentTransMoneyAdapter.getOperatedSumDec());
-        paymentAndTransactionDto.setComissionInt(moneyAccToPaymentTransMoneyAdapter.getOperatedComissionInt());
-        paymentAndTransactionDto.setComissionDec(moneyAccToPaymentTransMoneyAdapter.getOperatedComissionDec());
-        paymentAndTransactionDto.setAssignment(moneyAccPaymentConfirmationDto.getAssignment());
+        paymentSendingDto.setPayedSumInt(moneyAccToPaymentTransMoneyAdapter.getOperatedSumInt());
+        paymentSendingDto.setPayedSumDec(moneyAccToPaymentTransMoneyAdapter.getOperatedSumDec());
+        paymentSendingDto.setComissionInt(moneyAccToPaymentTransMoneyAdapter.getOperatedComissionInt());
+        paymentSendingDto.setComissionDec(moneyAccToPaymentTransMoneyAdapter.getOperatedComissionDec());
 
-        return paymentAndTransactionDto;
+        paymentSendingDto.setAssignment(moneyAccPaymentConfirmationDto.getAssignment());
+
+        return paymentSendingDto;
     }
 
 

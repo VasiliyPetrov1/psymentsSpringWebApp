@@ -14,7 +14,7 @@
     <div class="container mt-2" style="width: 30em; border: 1px solid #666; border-radius: 3px">
         <p class="cRed" th:text="${paymentDetailsMessage}"></p>
         <div th:if="${paymentDetailsMessage} == null">
-        <h3 th:text="#{paymOfNum} + ${paymentDetailsDto.getNumber()} + #{details}">Payment Details</h3>
+        <h3 th:text="#{paymOfNum} + ${paymentDetailsDto.getNumber()} + ' ' +  #{details}">Payment Details</h3>
             <div class="row pl-1 pr-1 mt-1 mb-1">
                 <div class="col">
                     <p class="emphText" th:text="#{statusLabel}">Status:</p>

@@ -1,23 +1,26 @@
 package org.kosiuk.webApp.dto;
 
+import org.kosiuk.webApp.util.sumConversion.MoneyIntDecOperator;
 import org.springframework.stereotype.Component;
 
 @Component
-public class PaymentAndTransactionDto {
+public class PaymentSendingDto implements MoneyIntDecOperator {
 
-    Integer senderAccountId;
-    Integer receiverAccountId;
-    Long payedSumInt;
-    Integer payedSumDec;
-    Long comissionInt;
-    Integer comissionDec;
+    private Integer senderAccountId;
+    private Integer receiverAccountId;
+    private Long paymentNumber;
+    private Long payedSumInt;
+    private Integer payedSumDec;
+    private Long comissionInt;
+    private Integer comissionDec;
     String assignment;
 
-    public PaymentAndTransactionDto(Integer senderAccountId, Integer receiverAccountId,
-                                    Long payedSumInt, Integer payedSumDec, Long comissionInt,
-                                    Integer comissionDec, String assignment) {
+    public PaymentSendingDto(Integer senderAccountId, Integer receiverAccountId, Long paymentNumber,
+                             Long payedSumInt, Integer payedSumDec, Long comissionInt,
+                             Integer comissionDec, String assignment) {
         this.senderAccountId = senderAccountId;
         this.receiverAccountId = receiverAccountId;
+        this.paymentNumber = paymentNumber;
         this.payedSumInt = payedSumInt;
         this.payedSumDec = payedSumDec;
         this.comissionInt = comissionInt;
@@ -25,7 +28,7 @@ public class PaymentAndTransactionDto {
         this.assignment = assignment;
     }
 
-    public PaymentAndTransactionDto() {
+    public PaymentSendingDto() {
 
     }
 
@@ -77,11 +80,39 @@ public class PaymentAndTransactionDto {
         this.comissionDec = comissionDec;
     }
 
+    public Long getPaymentNumber() {
+        return paymentNumber;
+    }
+
+    public void setPaymentNumber(Long paymentNumber) {
+        this.paymentNumber = paymentNumber;
+    }
+
     public String getAssignment() {
         return assignment;
     }
 
     public void setAssignment(String assignment) {
         this.assignment = assignment;
+    }
+
+    @Override
+    public long getOperatedSumInt() {
+        return getPayedSumInt();
+    }
+
+    @Override
+    public int getOperatedSumDec() {
+        return getPayedSumDec();
+    }
+
+    @Override
+    public long getOperatedComissionInt() {
+        return getComissionInt();
+    }
+
+    @Override
+    public int getOperatedComissionDec() {
+        return getComissionDec();
     }
 }

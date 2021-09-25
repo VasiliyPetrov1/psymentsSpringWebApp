@@ -53,7 +53,7 @@
         </form>
     </div>
 </nav>
-    <div class="container" style="width: 50em; border: 2px solid #999; border-radius: 5px; margin-top: 6.5em">
+    <div class="container" style="width: 26em; border: 2px solid #999; border-radius: 5px; margin-top: 6.5em">
         <h2 th:text="#{crtNewMonAcc}">Create new money account</h2>
         <p th:text="${moneyAccountConfDto.getNumber()}"></p>
         <div class="row mb-1">
@@ -64,14 +64,14 @@
                     <input th:type="hidden" th:name="moneyAccountNum" th:value="${moneyAccountConfDto.getNumber()}">
                     <input th:type="text" th:name="moneyAccountName" th:id="moneyAccountNameId">
                     <br/>
-                    <input th:type="Submit" th:value="#{crtNewMonAcc}" class="btn btn-success">
+                    <input th:type="Submit" th:value="#{crtNewMonAcc}" class="btn btn-success mt-2">
                 </form>
             </div>
-            <div class="col">
-                <form th:method="PATCH"
-                    th:action="@{/app/moneyAccount/cancelCreation}">
-                    <input type="Submit" th:value="#{cancel}" class="button btn-warning">
-                </form>
+            <div class="d-flex flex-column justify-content-end mr-3">
+                    <form th:method="PATCH"
+                        th:action="@{/app/moneyAccount/cancelCreation}">
+                        <input type="Submit" th:value="#{cancel}" class="button btn-warning">
+                    </form>
             </div>
         </div>
         </div>

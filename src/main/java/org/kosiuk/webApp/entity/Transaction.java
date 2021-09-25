@@ -35,6 +35,15 @@ public class Transaction implements MoneyIntDecOperator {
     @MapsId("receiverMoneyAccountId")
     private MoneyAccount receiverMoneyAccount;
 
+    public Transaction(TransactionId transactionId, @NonNull Long movedSumInt, @NonNull Integer movedSumDec,
+                       Payment payment, MoneyAccount receiverMoneyAccount) {
+        this.transactionId = transactionId;
+        this.movedSumInt = movedSumInt;
+        this.movedSumDec = movedSumDec;
+        this.payment = payment;
+        this.receiverMoneyAccount = receiverMoneyAccount;
+    }
+
     public Transaction(TransactionId transactionId, @NonNull Long movedSumInt, @NonNull Integer movedSumDec) {
         this.transactionId = transactionId;
         this.movedSumInt = movedSumInt;

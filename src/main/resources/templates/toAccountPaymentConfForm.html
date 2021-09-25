@@ -14,37 +14,54 @@
 <div class="container mt-4 pr-2 pl-2 pt-1 pb-1" style="width: 30em; border: 2px solid #999; border-radius: 5px">
     <p th:text="${moneyAccPrepMessage}" class="cRed"></p>
     <h2 th:text="#{paymOnMonAcc}">Payment to money account</h2>
-    <form th:method="POST" th:action="@{/app/payment/toAccount}" th:object="${moneyAccPaymentConfDto}">
-        <input type="hidden" th:field="*{senderMoneyAccountId}">
-        <input type="hidden" th:field="*{receiverMoneyAccountNumber}">
-        <p class="emphText" th:text="#{toMonAcc}">To money account:</p>
-        <p th:text="${moneyAccPaymentConfDto.getReceiverMoneyAccountNumber()}"></p>
-        <input type="hidden" th:field="*{receiverAccountName}">
-        <p class="emphText" th:text="#{recAccLabel}">Receiver's account:</p>
-        <p th:text="${moneyAccPaymentConfDto.getReceiverAccountName()}"></p>
-        <input type="hidden" th:field="*{payedSumString}">
-        <p class="emphText" th:text="#{sumToPayLabel}">Sum to pay:</p>
-        <p th:if="not (${moneyAccPrepMessage} == 'You dont have enough money for this payment')"
+    <h3 th:text="${'№'+ moneyAccPaymentConfDto.getPaymentNumber()}"></h3>
+    <div class="row">
+        <div class="col">
+            <form th:method="PUT" th:action="@{/app/payment/toAccount}" th:object="${moneyAccPaymentConfDto}">
+                <input type="hidden" th:field="*{senderMoneyAccountId}">
+                <input type="hidden" th:field="*{senderMoneyAccountId}">
+                <input type="hidden" th:field="*{paymentNumber}">
+                <input type="hidden" th:field="*{receiverMoneyAccountId}">
+                <p class="emphText" th:text="#{toMonAcc}">To money account:</p>
+                <p th:text="${moneyAccPaymentConfDto.getReceiverMoneyAccountNumber()}"></p>
+                <input type="hidden" th:field="*{receiverAccountName}">
+                <p class="emphText" th:text="#{recAccLabel}">Receiver's account:</p>
+                <p th:text="${moneyAccPaymentConfDto.getReceiverAccountName()}"></p>
+                <input type="hidden" th:field="*{payedSumString}">
+                <p class="emphText" th:text="#{sumToPayLabel}">Sum to pay:</p>
+                <p th:if="not (${moneyAccPrepMessage} == 'You dont have enough money for this payment')"
            th:text="${moneyAccPaymentConfDto.getMovedSumString() + 'UAH'}"></p>
-        <p class="cRed" th:if="(${moneyAccPrepMessage} =='You dont have enough money for this payment')"
+                <p class="cRed" th:if="(${moneyAccPrepMessage} =='You dont have enough money for this payment')"
            th:text="${moneyAccPaymentConfDto.getMovedSumString()  + 'UAH'}"></p>
-        <p class="emphText" th:text="#{senderPaysComLabel}">Sender pays comission:</p>
-        <p th:if="not (${moneyAccPrepMessage} == 'You dont have enough money for this payment')"
-           th:text="${moneyAccPaymentConfDto.getPaymentComissionString() + 'UAH'}"></p>
-        <p class="cRed" th:if="${moneyAccPrepMessage} == 'You dont have enough money for this payment'"
-           th:text="${moneyAccPaymentConfDto.getPaymentComissionString() + 'UAH'}"></p>
-        <p class="emphText" th:text="#{totToPayLabel}">Total to pay:</p>
-        <p th:if="not (${moneyAccPrepMessage} == 'You dont have enough money for this payment')"
-           th:text="${moneyAccPaymentConfDto.getPayedSumString() + 'UAH'}"></p>
-        <p th:if="${moneyAccPrepMessage} == 'You dont have enough money for this payment'"
-           class="cRed" th:text="${moneyAccPaymentConfDto.getPayedSumString()} + 'UAH'"></p>
-        <input type="hidden" th:field="*{assignment}">
-        <p class="emphText" th:text="#{assignmentLabel}">Assignment:</p>
-        <p th:text="${moneyAccPaymentConfDto.getAssignment()}"></p>
-        <input type="hidden" th:field="*{paymentComissionString}">
-        <input th:if="${moneyAccPrepMessage == null}" type="submit" th:value="#{confBtn}" class="button btn-success mt-2 mb-2 mr-2">
-        <br>
-    </form>
+                <input type="hidden" th:field="*{paymentComissionString}">
+                <p class="emphText" th:text="#{senderPaysComLabel}">Sender pays comission:</p>
+                <p th:if="not (${moneyAccPrepMessage} == 'You dont have enough money for this payment')"
+            th:text="${moneyAccPaymentConfDto.getPaymentComissionString() + 'UAH'}"></p>
+                <p class="cRed" th:if="${moneyAccPrepMessage} == 'You dont have enough money for this payment'"
+                th:text="${moneyAccPaymentConfDto.getPaymentComissionString() + 'UAH'}"></p>
+                <p class="emphText" th:text="#{totToPayLabel}">Total to pay:</p>
+                <p th:if="not (${moneyAccPrepMessage} == 'You dont have enough money for this payment')"
+            th:text="${moneyAccPaymentConfDto.getPayedSumString() + 'UAH'}"></p>
+                <p th:if="${moneyAccPrepMessage} == 'You dont have enough money for this payment'"
+            class="cRed" th:text="${moneyAccPaymentConfDto.getPayedSumString()} + 'UAH'"></p>
+                <input type="hidden" th:field="*{assignment}">
+                <p class="emphText" th:text="#{assignmentLabel}">Assignment:</p>
+                <p th:text="${moneyAccPaymentConfDto.getAssignment()}"></p>
+                <input th:if="${moneyAccPrepMessage == null}" type="submit" th:value="#{confBtn}" class="button btn-success mt-2 mb-2 mr-2">
+                <br>
+            </form>
+        </div>
+        <div class="col mb-2">
+            <div class="d-flex flex-column justify-content-end align-items-end mr-3">
+            <form th:method="DELETE" th:action="@{/app/payment}">
+                <input type="hidden" name="senderMoneyAccId" th:value="${moneyAccPaymentConfDto.getSenderMoneyAccountId()}">
+                <input type="hidden" name="paymentNumber" th:value="${moneyAccPaymentConfDto.getPaymentNumber()}">
+                <input type="hidden" name="payedSumString" th:value="${moneyAccPaymentConfDto.getPayedSumString()}">
+                <input class="btn btn-warning" type="submit" th:value="#{cancel}">
+            </form>
+            </div>
+        </div>
+    </div>
 </div>
 </body>
 </html>

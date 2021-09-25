@@ -7,18 +7,22 @@ import org.springframework.stereotype.Component;
 public class MoneyAccPaymentConfirmationDto implements MoneyStringOperator {
 
     private Integer senderMoneyAccountId;
+    private Integer receiverMoneyAccountId;
     private Long receiverMoneyAccountNumber;
+    private Long paymentNumber;
     private String receiverAccountName;
     private String payedSumString;
     private String assignment;
     private String movedSumString;
     private String paymentComissionString;
 
-    public MoneyAccPaymentConfirmationDto(Integer senderMoneyAccountId, Long receiverMoneyAccountNumber,
-                                          String receiverAccountName, String payedSumString, String assignment,
+    public MoneyAccPaymentConfirmationDto(Integer senderMoneyAccountId, Integer receiverMoneyAccountId, Long receiverMoneyAccountNumber,
+                                          Long paymentNumber, String receiverAccountName, String payedSumString, String assignment,
                                           String movedSumString, String paymentComissionString) {
         this.senderMoneyAccountId = senderMoneyAccountId;
+        this.receiverMoneyAccountId = receiverMoneyAccountId;
         this.receiverMoneyAccountNumber = receiverMoneyAccountNumber;
+        this.paymentNumber = paymentNumber;
         this.receiverAccountName = receiverAccountName;
         this.payedSumString = payedSumString;
         this.assignment = assignment;
@@ -37,12 +41,28 @@ public class MoneyAccPaymentConfirmationDto implements MoneyStringOperator {
         this.senderMoneyAccountId = senderMoneyAccountId;
     }
 
+    public Integer getReceiverMoneyAccountId() {
+        return receiverMoneyAccountId;
+    }
+
+    public void setReceiverMoneyAccountId(Integer receiverMoneyAccountId) {
+        this.receiverMoneyAccountId = receiverMoneyAccountId;
+    }
+
     public Long getReceiverMoneyAccountNumber() {
         return receiverMoneyAccountNumber;
     }
 
     public void setReceiverMoneyAccountNumber(Long receiverMoneyAccountNumber) {
         this.receiverMoneyAccountNumber = receiverMoneyAccountNumber;
+    }
+
+    public Long getPaymentNumber() {
+        return paymentNumber;
+    }
+
+    public void setPaymentNumber(Long paymentNumber) {
+        this.paymentNumber = paymentNumber;
     }
 
     public String getReceiverAccountName() {

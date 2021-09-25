@@ -3,6 +3,7 @@ package org.kosiuk.webApp.paymentSendingObserver;
 
 import org.kosiuk.webApp.service.PaymentService;
 
+@Deprecated
 public class PaymentSendingDto implements PaymentSender {
 
     private Long paymentNumber;
@@ -59,7 +60,7 @@ public class PaymentSendingDto implements PaymentSender {
         paymentSendingManager.lockMoneyAccount(senderAccountId);
         paymentSendingManager.lockMoneyAccount(receiverAccountId);
 
-        paymentService.sendPayment(this);
+        //paymentService.sendPayment(this);
 
         paymentSendingManager.unsubscribe(this, senderAccountId);
         paymentSendingManager.unsubscribe(this, receiverAccountId);
