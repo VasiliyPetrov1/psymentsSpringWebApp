@@ -235,7 +235,7 @@ public class PaymentController {
             moneyAccPaymentConfirmationDto.setReceiverMoneyAccountId(moneyAccPaymentConfDto.getReceiverMoneyAccountId());
             moneyAccPaymentConfirmationDto.setPaymentNumber(moneyAccPaymentConfDto.getPaymentNumber());
         } catch (NoMoneyAccountByNumberException e) {
-            model.addAttribute("moneyAccPrepMessage", rb.getString("verification.payment.noCard.byNumber"));
+            model.addAttribute("moneyAccPrepMessage", rb.getString("verification.payment.noMonAcc.byNumber"));
             model.addAttribute("errors", new HashMap<String, String[]>());
             return "toAccountPaymentForm";
         } catch (ToOwnRequisitePaymentException e) {

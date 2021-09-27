@@ -87,6 +87,35 @@
             </tbody>
         </table>
     </div>
+    <div th:if="${totalPages > 1}" class="container mt-3 mb-2" style="max-width:1300px; border: 2px solid #777; border-radius: 5px;
+     display: flex; align-items: center">
+        <div class="row col-sm-12" style="font-size:20px">
+            <div class="col-sm-3">
+                <span th:text="#{totUsers}">Total Orders:</span> [[${totalItems}]]
+            </div>
+            <div class="col-sm-3">
+                <span th:each="i: ${#numbers.sequence(1, totalPages)}">
+                    <a th:if="${curPage != i}" th:href="@{'/app/user/page/' + ${i}}">
+                        [[${i}]]
+                    </a>
+                    <span th:unless="${curPage != i}">[[${i}]]</span> &nbsp; &nbsp;
+                </span>
+            </div>
+            <div class="col-sm-1">
+                <a th:if="${curPage < totalPages}" th:href="@{'/app/user/page/' + ${curPage + 1}}" th:text="#{nextLink}">
+                    Next
+                </a>
+                <span th:unless="${curPage < totalPages}" th:text="#{nextLink}">Next</span>
+            </div>
+            <div class="col-sm-1">
+                <a th:if="${curPage < totalPages}" th:href="@{'/app/user/page/' + ${totalPages}}" th:text="#{lastLink}">
+                    Last
+                </a>
+                <span th:unless="${curPage < totalPages}" th:text="#{lastLink}">Last</span>
+            </div>
+        </div>
+        <br/>
+    </div>
 </div>
 </body>
 </html>

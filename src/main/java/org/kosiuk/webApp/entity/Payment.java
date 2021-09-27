@@ -37,12 +37,12 @@ public class Payment implements MoneyIntDecOperator {
     @ManyToOne(cascade = {
             CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH
     })
-    @JoinColumn(name = "sender_money_account_id", referencedColumnName = "id")
+    @JoinColumn(name = "sender_money_account_id", referencedColumnName = "id", updatable = false)
     @MapsId("senderMoneyAccountId")
     private MoneyAccount moneyAccount;
 
     @OneToOne(mappedBy = "payment", cascade = {
-            CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH
+            CascadeType.ALL
     })
     private Transaction transaction;
 

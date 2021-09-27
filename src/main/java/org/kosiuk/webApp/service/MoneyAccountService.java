@@ -58,7 +58,9 @@ public class MoneyAccountService {
         moneyAccountRepository.save(moneyAccount);
         addPropService.incCurMoneyAccountNum();
         isAnyMoneyAccOnCreation = false;
-        return moneyAccountRepository.findByNumber(number);
+        moneyAccount = moneyAccountRepository.findByNumber(number);
+        moneyAccountMonitorsMap.put(moneyAccount.getId(), new MoneyAccountMonitor(moneyAccount.getId()));
+        return moneyAccount;
     }
 
     public MoneyAccountConfirmationDto getNewMoneyAccountConfDto() throws UnsafeMoneyAccCreationException {
@@ -85,6 +87,7 @@ public class MoneyAccountService {
             // the user won't have any blocked accounts
             userService.save(owner);
         }
+
         moneyAccountRepository.deleteById(id);
     }
 

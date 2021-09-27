@@ -14,4 +14,8 @@ public interface MoneyIntDecOperator {
         return 0;
     }
 
+    default long getOperatedTotalInt() {return 0L;}
+
+    default int getOperatedTotalDec() {return 0;}
+
 }

@@ -58,12 +58,20 @@
         <p th:text="${moneyAccountConfDto.getNumber()}"></p>
         <div class="row mb-1">
             <div class="col">
-                <form th:method="POST"
-                th:action="@{/app/moneyAccount}">
-                    <p th:text="#{entMonAccNm}">Enter the name of money account</p>
-                    <input th:type="hidden" th:name="moneyAccountNum" th:value="${moneyAccountConfDto.getNumber()}">
-                    <input th:type="text" th:name="moneyAccountName" th:id="moneyAccountNameId">
-                    <br/>
+                <form th:method="POST" th:action="@{/app/moneyAccount}" th:object="${moneyAccountConfDto}">
+                    <label class="emphText" for="monAccNumber" th:text="#{numberLabel}"></label>
+                    <p th:text="#{entMonAccNm}" id="monAccNumber">Enter the name of money account</p>
+                    <input th:type="hidden" th:field="*{number}">
+                    <label class="emphText" for="monAccNumber" th:text="#{nameLabel}"></label>
+                    <input th:if="${errors.get('nameErrors') != null}" class="form-control is-invalid" th:type="text"
+                           th:field="*{name}">
+                    <input th:if="${errors.get('nameErrors') == null}" class="form-control is-valid" th:type="text"
+                           th:field="*{name}">
+                    <div th:if="${errors.get('nameErrors') != null}" class="alert alert-danger" role="alert"
+                         th:each="error : ${errors.get('nameErrors')}">
+                        <span th:text="${error}"></span>
+                        <br>
+                    </div>
                     <input th:type="Submit" th:value="#{crtNewMonAcc}" class="btn btn-success mt-2">
                 </form>
             </div>

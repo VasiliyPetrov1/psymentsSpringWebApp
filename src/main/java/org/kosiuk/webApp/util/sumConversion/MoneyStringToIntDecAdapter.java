@@ -27,4 +27,14 @@ public class MoneyStringToIntDecAdapter implements MoneyIntDecOperator {
     public int getOperatedComissionDec() {
         return Integer.parseInt(moneyStringOperator.getOperatedComissionString().split("\\.")[1]);
     }
+
+    @Override
+    public long getOperatedTotalInt() {
+        return Long.parseLong(moneyStringOperator.getOperatedTotalString().split("\\.")[0]);
+    }
+
+    @Override
+    public int getOperatedTotalDec() {
+        return Integer.parseInt(moneyStringOperator.getOperatedTotalString().split("\\.")[1]);
+    }
 }

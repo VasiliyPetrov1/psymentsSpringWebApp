@@ -62,7 +62,7 @@
         <div class="col-4 mt-2 pr-3 pl-3" th:each="moneyAccountDto : ${moneyAccountDtos}">
             <div class="container" style="border: 1px solid #666; border-radius: 3px">
             <h3 th:text="#{monAcc}">Money Account</h3>
-            <p th:text="${moneyAccountDto.getNumber()}"></p>
+                <h5 th:text="${'№ ' + moneyAccountDto.getNumber()}" id="monAccNumber"></h5>
             <p th:text="${moneyAccountDto.getName()}"></p>
             <p th:text="${moneyAccountDto.getSumString()} + 'UAH'"></p>
             <p th:if="${moneyAccountDto.isActive()}">ACTIVE</p>
@@ -104,6 +104,7 @@
                 </div>
             </form>
         </div>
+    </div>
         <div th:if="${totalPages > 1}" class="container mt-3 mb-2" style="max-width:1300px; border: 2px solid #777; border-radius: 5px;
      display: flex; align-items: center">
             <div class="row col-sm-12" style="font-size:20px">

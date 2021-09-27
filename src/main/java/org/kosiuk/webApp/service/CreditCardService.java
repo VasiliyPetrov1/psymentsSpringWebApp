@@ -5,6 +5,8 @@ import org.kosiuk.webApp.dto.CreditCardDto;
 import org.kosiuk.webApp.entity.*;
 import org.kosiuk.webApp.repository.CreditCardRepository;
 import org.kosiuk.webApp.util.sumConversion.MoneyIntDecToStringAdapter;
+import org.kosiuk.webApp.util.sumConversion.MoneyStringOpWrapper;
+import org.kosiuk.webApp.util.sumConversion.MoneyStringToIntDecAdapter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -115,10 +117,14 @@ public class CreditCardService {
     @Transactional(propagation = Propagation.REQUIRED)
     public CreditCard putMoney(Integer id, String sumString) {
 
-        String[] sumIntDec = sumString.split("\\.");
+        MoneyStringOpWrapper moneyStringOpWrapper = MoneyStringOpWrapper.builder().
+                sumString(sumString)
+                .build();
 
-        long sumInt = Long.parseLong(sumIntDec[0]);
-        int sumDec = Integer.parseInt(sumIntDec[1]);
+        MoneyStringToIntDecAdapter moneyAdapter = new MoneyStringToIntDecAdapter(moneyStringOpWrapper);
+
+        long sumInt = moneyAdapter.getOperatedSumInt();
+        int sumDec = moneyAdapter.getOperatedSumDec();
 
         CreditCard creditCard = creditCardRepository.findByCardId(id);
         long sumPrevInt = creditCard.getSumAvailableInt();

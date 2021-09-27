@@ -1,9 +1,7 @@
 package org.kosiuk.webApp.controller;
 
-import org.kosiuk.webApp.dto.CreditCardOrderDto;
-import org.kosiuk.webApp.dto.UserCreationDto;
-import org.kosiuk.webApp.dto.UserEditionDto;
-import org.kosiuk.webApp.dto.UserLimitedEditionDto;
+import org.kosiuk.webApp.dto.*;
+import org.kosiuk.webApp.entity.CreditCardOrder;
 import org.kosiuk.webApp.entity.User;
 import org.kosiuk.webApp.exceptions.NotCompatibleRolesException;
 import org.kosiuk.webApp.service.CreditCardOrderService;
@@ -13,6 +11,7 @@ import org.kosiuk.webApp.util.visitor.ValidationVisitor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -20,6 +19,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 
@@ -80,8 +80,25 @@ public class UserController {
     @PreAuthorize("hasAuthority('ADMIN')")
     public String showAllUsers(Model model) {
         AuthUtil.addRolesToModel(SecurityContextHolder.getContext().getAuthentication(), model);
-        model.addAttribute("users", userService.getAllUsers());
+        return showAllUsersPage(1, model);
+    }
+
+    @GetMapping("/page/{pageNumber}")
+    public String showAllUsersPage (@PathVariable("pageNumber") Integer pageNumber,
+                                     Model model) {
+        AuthUtil.addRolesToModel(SecurityContextHolder.getContext().getAuthentication(), model);
+
+        Page<User> page = userService.getAllUsersPage(pageNumber);
+        List<User> users = page.getContent();
+
+        model.addAttribute("curPage", pageNumber);
+        model.addAttribute("totalPages", page.getTotalPages());
+        model.addAttribute("totalItems", page.getTotalElements());
+
+        model.addAttribute("users", users);
+
         return "showAllUsers";
+
     }
 
     @GetMapping("{userId}")

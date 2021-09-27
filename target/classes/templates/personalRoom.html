@@ -81,7 +81,6 @@
                 <span th:text="${error}"></span>
                 <br>
             </div>
-                <br/>
             <label th:for="password" th:text="#{passwordLabel}">Password:</label>
             <input th:if="${errors.get('passwordErrors') != null}" type="text" th:field="*{password}" class="form-control is-invalid" th:id="password" >
             <input th:if="${errors.get('passwordErrors') == null}" type="text" th:field="*{password}" class="form-control is-valid" th:id="password" >

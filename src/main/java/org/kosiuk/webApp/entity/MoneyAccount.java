@@ -47,14 +47,14 @@ public class MoneyAccount implements MoneyIntDecOperator {
     @PrimaryKeyJoinColumn
     private CreditCard creditCard;
 
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "sender_money_account_id")
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "sender_money_account_id", updatable = false)
     private List<Payment> payments;
 
-    @OneToMany(cascade = {
+    @OneToMany(fetch = FetchType.LAZY, cascade = {
             CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH
-    })
-    @JoinColumn(name = "receiver_money_account_id")
+    }, orphanRemoval = true)
+    @JoinColumn(name = "receiver_money_account_id", updatable = false)
     private List<Transaction> receivedTransactions;
 
     public MoneyAccount(Integer id, @NonNull Long number, String name, @NonNull Long sumInt, @NonNull Integer sumDec,

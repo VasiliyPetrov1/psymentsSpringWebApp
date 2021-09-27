@@ -87,6 +87,11 @@
         <input type="checkbox" th:field="*{admin}" th:name="admin"
                th:id="adminId">
     </div>
+    <div th:if="${errors.get('rolesErrors') != null}" class="alert alert-danger" role="alert"
+         th:each="error : ${errors.get('rolesErrors')}">
+        <span th:text="${error}"></span>
+        <br>
+    </div>
     <div th:if="${createUserMessage != null}" class="alert alert-danger" role="alert">
         <span th:text="${createUserMessage}">message</span>
     </div>

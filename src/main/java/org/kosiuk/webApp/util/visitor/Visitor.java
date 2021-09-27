@@ -26,7 +26,9 @@ public interface Visitor<T> {
 
     T visitMessage(String message);
 
-    T visitMoneyAccountName(String monAccNamr);
+    T visitMoneyAccountName(String monAccName);
+
+    T visitSumString(String moneySumString);
 
     T visitCardPaymentPreparationDto(CardPaymentPreparationDto cardPaymentPreparationDto);
 

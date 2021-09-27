@@ -60,12 +60,29 @@
     <div class="row justify-content-start mt-2 mb-2">
     <div class="card pr-2 pl-2 col-3" style="height: 100%; border:2px solid #777"
          th:each="curOrderDto : ${creditCardOrderWithUserDtos}">
-        <p th:text="${curOrderDto.getOwnerName()}"></p>
-        <p th:text="${curOrderDto.getOrderStatus()}"></p>
-        <p th:text="${curOrderDto.getMessage()}"></p>
-        <p th:if="${curOrderDto.isVisa()}">VISA</p>
-        <p th:if="${curOrderDto.isMasterCard()}">MASTER CARD</p>
+        <h3 th:text="#{order}"></h3>
         <div class="row">
+            <div class="col">
+                <label for="ownerName" class="emphText" th:text="#{userLabel}"></label>
+                <p th:text="${curOrderDto.getOwnerName()}" id="ownerName"></p>
+            </div>
+            <div class="col">
+                <label for="ownerName" class="emphText" th:text="#{statusLabel}"></label>
+                <p th:text="${curOrderDto.getOrderStatus()}"></p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <label for="ownerName" class="emphText" th:text="#{messageLabel}"></label>
+                <p th:text="${curOrderDto.getMessage()}"></p>
+            </div>
+            <div class="col">
+                <label for="ownerName" class="emphText" th:text="#{paymentSysLabel}"></label>
+                <p th:if="${curOrderDto.isVisa()}">VISA</p>
+                <p th:if="${curOrderDto.isMasterCard()}">MASTER CARD</p>
+            </div>
+        </div>
+        <div class="row mb-3">
             <div class="col">
                     <form th:if = "${curOrderDto.getOrderStatus().ordinal() == 0}" th:method="GET"
                     th:action="@{/app/order/{orderId}/reject(orderId = ${curOrderDto.getId()})}">

@@ -1,16 +1,17 @@
 package org.kosiuk.webApp.controller;
 
-import org.kosiuk.webApp.dto.MoneyAccountConfirmationDto;
-import org.kosiuk.webApp.dto.MoneyAccountDto;
-import org.kosiuk.webApp.dto.MoneyAccountWithUserDto;
+import org.kosiuk.webApp.dto.*;
 import org.kosiuk.webApp.entity.MoneyAccount;
+import org.kosiuk.webApp.entity.OrderStatus;
 import org.kosiuk.webApp.entity.User;
 import org.kosiuk.webApp.exceptions.UnsafeMoneyAccCreationException;
 import org.kosiuk.webApp.service.MoneyAccountService;
 import org.kosiuk.webApp.service.UserService;
 import org.kosiuk.webApp.util.AuthUtil;
+import org.kosiuk.webApp.util.visitor.ValidationVisitor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.data.domain.Page;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -18,7 +19,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.ResourceBundle;
 
 @Controller
 @RequestMapping("app/moneyAccount")
@@ -126,26 +130,37 @@ public class MoneyAccountController {
     @GetMapping("getCreationForm")
     public String getMoneyAccountCreationForm(Model model) {
         AuthUtil.addRolesToModel(SecurityContextHolder.getContext().getAuthentication(), model);
+        ResourceBundle rb = ResourceBundle.getBundle("messages", LocaleContextHolder.getLocale());
         MoneyAccountConfirmationDto moneyAccountConfDto;
         try {
             moneyAccountConfDto = moneyAccountService.getNewMoneyAccountConfDto();
             model.addAttribute("moneyAccountConfDto", moneyAccountConfDto);
         } catch (UnsafeMoneyAccCreationException e) {
-            model.addAttribute("moneyAccCreationMessage", "Unsafe creation. Other ADMIN " +
-                    "is trying to create some money account now. Try later");
+            model.addAttribute("moneyAccCreationMessage", rb.getString("verification.moneyAccount.unsafe.creation"));
             return "showAllMoneyAccounts";
         }
 
+        model.addAttribute("errors", new HashMap<String, String[]>());
         return "newMoneyAccount";
 
     }
 
     @PostMapping()
-    public String createMoneyAccount(@RequestParam("moneyAccountNum") Long moneyAccountNum,
-                                     @RequestParam("moneyAccountName") String moneyAccountName,
+    public String createMoneyAccount(@ModelAttribute("moneyAccountConfDto") MoneyAccountConfirmationDto moneyAccountConfDto,
                                      Model model) {
         AuthUtil.addRolesToModel(SecurityContextHolder.getContext().getAuthentication(), model);
-        moneyAccountService.createMoneyAccount(moneyAccountNum, moneyAccountName);
+        ResourceBundle rb = ResourceBundle.getBundle("messages", LocaleContextHolder.getLocale());
+        String moneyAccountName = moneyAccountConfDto.getName();
+        ValidationVisitor validationVisitor = new ValidationVisitor(rb);
+        Map<String, String[]> validationErrorsMap = validationVisitor.visitMoneyAccountName(moneyAccountName);
+
+        if (!validationErrorsMap.isEmpty()) {
+            model.addAttribute("moneyAccountConfDto", moneyAccountConfDto);
+            model.addAttribute("errors", validationErrorsMap);
+            return "newMoneyAccount";
+        }
+
+        moneyAccountService.createMoneyAccount(moneyAccountConfDto.getNumber(), moneyAccountName);
         return "showAllMoneyAccounts";
 
     }

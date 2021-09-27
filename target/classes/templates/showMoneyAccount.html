@@ -11,14 +11,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
-    <div class="container mt-4" style="width: 70em; border: 2px solid #999; border-radius: 5px">
+    <div class="container mt-4" style="width: 20em; border: 2px solid #999; border-radius: 5px">
         <h3 th:text="#{monAcc}">Money Account</h3>
-        <p th:text="${moneyAccountDto.getNumber()}"></p>
-        <p th:text="${moneyAccountDto.getName()}"></p>
-        <p th:text="${moneyAccountDto.getSumString()} + 'UAH'"></p>
-        <p th:if="${moneyAccountDto.isActive()}">ACTIVE</p>
-        <p th:if="${moneyAccountDto.isBlocked()}">BLOCKED</p>
-        <p th:if="${moneyAccountDto.isUnlockRequested()}">UNLOCK REQUESTED</p>
+        <h5 th:text="${'№ ' + moneyAccountDto.getNumber()}" id="monAccNumber"></h5>
+        <div class="d-flex justify-content-start">
+            <label class="emphText" for="monAccName" th:text="#{nameLabel}"></label>
+            <p th:text="${moneyAccountDto.getName()}" id="monAccName"></p>
+        </div>
+        <div class="d-flex justify-content-start">
+            <label class="emphText" for="monAccName" th:text="#{sum}"></label>
+            <p th:text="${moneyAccountDto.getSumString()} + 'UAH'" id="monaAccSum"></p>
+        </div>
+        <div class="d-flex justify-content-start">
+            <label class="emphText" for="monAccName" th:text="#{statusLabel}"></label>
+            <p th:if="${moneyAccountDto.isActive()}">ACTIVE</p>
+            <p th:if="${moneyAccountDto.isBlocked()}">BLOCKED</p>
+            <p th:if="${moneyAccountDto.isUnlockRequested()}">UNLOCK REQUESTED</p>
+        </div>
         <div class="row justify-content-start align-items-center ml-1 mt-2 mb-2">
             <form th:if="${moneyAccountDto.isCanBeLocked() and moneyAccountDto.isActive()}"
                  th:action="@{/app/moneyAccount/{moneyAccId}/block(moneyAccId = ${moneyAccountDto.getId()})}" th:method="PATCH">

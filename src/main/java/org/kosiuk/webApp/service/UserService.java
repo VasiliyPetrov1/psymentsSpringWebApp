@@ -10,7 +10,11 @@ import org.kosiuk.webApp.entity.User;
 import org.kosiuk.webApp.exceptions.NotCompatibleRolesException;
 import org.kosiuk.webApp.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -27,6 +31,8 @@ import java.util.Set;
 public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
+    @Value("${application.userPageSize}")
+    private int pageSize;
 
     @Autowired
     public UserService(UserRepository userRepository) {
@@ -95,6 +101,11 @@ public class UserService implements UserDetailsService {
 
         return new User(userEditionDto.getId(), userEditionDto.getUsername(), userEditionDto.getEmail(),
                 userEditionDto.isActive(), roleSet);
+    }
+
+    public Page<User> getAllUsersPage(int pageNumber) {
+        Pageable pageable = PageRequest.of(pageNumber - 1, pageSize);
+        return userRepository.findAll(pageable);
     }
 
     public User updateUserLimited(UserLimitedEditionDto userLimEditionDto){

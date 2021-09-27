@@ -54,7 +54,7 @@
     </div>
 </nav>
 <div class="container" style="width: 70em; border: 2px solid #999; border-radius: 5px; margin-top: 6.5em">
-    <p th:text="${moneyAccCreationMessage}"></p>
+    <h2 class="text-danger" th:text="${moneyAccCreationMessage}"></h2>
     <h2 th:text="#{allMonAccs}">All Money Accounts:</h2>
     <div class="row justify-content-start mt-2">
     <div class="col-4 pr-3 pl-3" th:each="moneyAccountDto : ${moneyAccountDtos}">

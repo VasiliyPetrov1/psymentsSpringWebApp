@@ -29,4 +29,16 @@ public class MoneyIntDecToStringAdapter implements MoneyStringOperator {
         comissionStringSb.append(moneyIntDecOperator.getOperatedComissionDec());
         return comissionStringSb.toString();
     }
+
+    @Override
+    public String getOperatedTotalString() {
+        StringBuilder totalStringSb = new StringBuilder(String.valueOf(moneyIntDecOperator.getOperatedTotalInt()));
+        totalStringSb.append(".");
+        if (moneyIntDecOperator.getOperatedTotalDec() < 10) {
+            totalStringSb.append("0");
+        }
+        totalStringSb.append(moneyIntDecOperator.getOperatedTotalDec());
+        return totalStringSb.toString();
+    }
+
 }

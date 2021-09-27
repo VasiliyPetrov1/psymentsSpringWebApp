@@ -8,13 +8,18 @@ import org.kosiuk.webApp.entity.User;
 import org.kosiuk.webApp.service.CreditCardService;
 import org.kosiuk.webApp.service.UserService;
 import org.kosiuk.webApp.util.AuthUtil;
+import org.kosiuk.webApp.util.visitor.ValidationVisitor;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.data.domain.Page;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.ResourceBundle;
 
 @Controller
 @RequestMapping("/app/creditCard")
@@ -65,6 +70,7 @@ public class СreditCardController {
         AuthUtil.addRolesToModel(SecurityContextHolder.getContext().getAuthentication(), model);
 
         model.addAttribute("cardId", cardId);
+        model.addAttribute("errors", new HashMap<String, String[]>());
         return "moneyPutForm";
 
     }
@@ -74,6 +80,16 @@ public class СreditCardController {
                            @RequestParam("sumString") String sumString,
                            Model model) {
         AuthUtil.addRolesToModel(SecurityContextHolder.getContext().getAuthentication(), model);
+        ResourceBundle rb = ResourceBundle.getBundle("messages", LocaleContextHolder.getLocale());
+        ValidationVisitor validationVisitor = new ValidationVisitor(rb);
+        Map<String, String[]> validationErrorsMap = validationVisitor.visitSumString(sumString);
+
+        if (!validationErrorsMap.isEmpty()) {
+            model.addAttribute("sumString", sumString);
+            model.addAttribute("cardId", cardId);
+            model.addAttribute("errors", validationErrorsMap);
+            return "moneyPutForm";
+        }
 
         Integer ownerId = creditCardService.putMoney(cardId, sumString).getUser().getId();
 

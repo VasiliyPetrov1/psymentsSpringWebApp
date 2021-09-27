@@ -1,6 +1,9 @@
 package org.kosiuk.webApp.repository;
 
+import org.kosiuk.webApp.entity.CreditCardOrder;
 import org.kosiuk.webApp.entity.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -39,5 +42,7 @@ public interface UserRepository extends CrudRepository<User, Integer> {
     @Query(value = "UPDATE account set has_order_on_check = 0 WHERE id = :id", nativeQuery = true)
     @Modifying
     void dropOrderOnCheckFlag (@Param("id") Integer id);
+
+    Page<User> findAll(Pageable pageable);
 
 }

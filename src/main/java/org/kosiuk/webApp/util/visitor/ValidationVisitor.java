@@ -24,7 +24,8 @@ public class ValidationVisitor implements Visitor<Map<String, String[]>>{
     private final CompositeValidator<String> cardNumStringValidator;
     private final CompositeValidator<String> sumStringValidator;
     private final CompositeValidator<String> assignmentValidator;
-    CompositeValidator<String> moneyAccNumStringValidator;
+    private final CompositeValidator<String> moneyAccNumStringValidator;
+    private final CompositeValidator<List<Boolean>> userRolesValidator;
     public ValidationVisitor(ResourceBundle rb) {
         this.rb = rb;
         usernameValidator = new CompositeValidator<> (
@@ -38,6 +39,9 @@ public class ValidationVisitor implements Visitor<Map<String, String[]>>{
         passwordValidator = new CompositeValidator<> (
                 new NotBlankValidator(rb.getString("validation.user.password.notBlank")),
                 new SizeValidator(4, 16, rb.getString("validation.user.password.size"))
+        );
+        userRolesValidator = new CompositeValidator<>(
+                new NotAllFlagsFalseValidator(rb.getString("validation.user.roles.notBlank"))
         );
         messageValidator = new CompositeValidator<>(
                 new SizeValidator(0, 100, rb.getString("validation.order.message.size"))
@@ -112,7 +116,10 @@ public class ValidationVisitor implements Visitor<Map<String, String[]>>{
         if (!result.isValid()) {
             validationErrorsMap.put("passwordErrors", result.getMessage().split("\n"));
         }
-
+        result = userRolesValidator.validate(List.of(userCreationDto.isUser(), userCreationDto.isAdmin()));
+        if (!result.isValid()) {
+            validationErrorsMap.put("rolesErrors", result.getMessage().split("\n"));
+        }
         return validationErrorsMap;
     }
 
@@ -127,6 +134,10 @@ public class ValidationVisitor implements Visitor<Map<String, String[]>>{
         result = emailValidator.validate(userEditionDto.getEmail());
         if (!result.isValid()) {
             validationErrorsMap.put("emailErrors", result.getMessage().split("\n"));
+        }
+        result = userRolesValidator.validate(List.of(userEditionDto.isUser(), userEditionDto.isAdmin()));
+        if (!result.isValid()) {
+            validationErrorsMap.put("rolesErrors", result.getMessage().split("\n"));
         }
 
         return validationErrorsMap;
@@ -169,6 +180,9 @@ public class ValidationVisitor implements Visitor<Map<String, String[]>>{
     @Override
     public Map<String, String[]> visitMessage(String message) {
         Map<String, String[]> validationErrorsMap = new HashMap<>();
+        CompositeValidator<String> messageValidator = new CompositeValidator<>(
+                new SizeValidator(0, 100, rb.getString("validation.order.rejectionMessage.size"))
+        );
         Result result = messageValidator.validate(message);
         if (!result.isValid()) {
             validationErrorsMap.put("messageErrors", result.getMessage().split("\n"));
@@ -183,6 +197,19 @@ public class ValidationVisitor implements Visitor<Map<String, String[]>>{
         if (!result.isValid()) {
             validationErrorsMap.put("nameErrors", result.getMessage().split("\n"));
         }
+        return validationErrorsMap;
+    }
+
+    @Override
+    public Map<String, String[]> visitSumString(String moneySumString) {
+        Map<String, String[]> validationErrorsMap = new HashMap<>();
+
+        Result result = sumStringValidator.validate(moneySumString);
+
+        if (!result.isValid()) {
+            validationErrorsMap.put("sumErrors", result.getMessage().split("\n"));
+        }
+
         return validationErrorsMap;
     }
 
