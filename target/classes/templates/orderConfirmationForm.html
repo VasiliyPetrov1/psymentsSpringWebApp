@@ -57,10 +57,10 @@
                 <input class="btn btn-success mt-2 mb-2" th:type="Submit" th:value="#{crtCrdAcc}">
             </form>
         </div>
-        <div class="col">
-            <form class="mt-12" th:method="PATCH"
+        <div class="col d-flex flex-column justify-content-end mr-3">
+            <form th:method="PATCH"
                   th:action="@{/app/order/cancelConfirmation}">
-                <input class="btn btn-warning" th:type="Submit" th:value="#{cancel}">
+                <input class="btn btn-warning mb-3" th:type="Submit" th:value="#{cancel}">
             </form>
         </div>
     </div>

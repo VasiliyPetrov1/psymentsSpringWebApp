@@ -59,6 +59,23 @@ public class MoneyAccount implements MoneyIntDecOperator {
 
     public MoneyAccount(Integer id, @NonNull Long number, String name, @NonNull Long sumInt, @NonNull Integer sumDec,
                         @NonNull Long curSumAvailableInt, @NonNull Integer curSumAvailableDec,
+                        @NonNull MoneyAccountActStatus active, CreditCard creditCard, List<Payment> payments,
+                        List<Transaction> receivedTransactions) {
+        this.id = id;
+        this.number = number;
+        this.name = name;
+        this.sumInt = sumInt;
+        this.sumDec = sumDec;
+        this.curSumAvailableInt = curSumAvailableInt;
+        this.curSumAvailableDec = curSumAvailableDec;
+        this.active = active;
+        this.creditCard = creditCard;
+        this.payments = payments;
+        this.receivedTransactions = receivedTransactions;
+    }
+
+    /*public MoneyAccount(Integer id, @NonNull Long number, String name, @NonNull Long sumInt, @NonNull Integer sumDec,
+                        @NonNull Long curSumAvailableInt, @NonNull Integer curSumAvailableDec,
                         @NonNull MoneyAccountActStatus active) {
         this.id = id;
         this.number = number;
@@ -80,9 +97,101 @@ public class MoneyAccount implements MoneyIntDecOperator {
         this.curSumAvailableInt = curSumAvailableInt;
         this.curSumAvailableDec = curSumAvailableDec;
         this.active = active;
-    }
+    }*/
 
     public MoneyAccount() {
+
+    }
+
+    public static MoneyAccount.Builder builder() {
+        return new MoneyAccount.Builder();
+    }
+
+    public static class Builder {
+
+        private Integer id;
+        private Long number;
+        private String name;
+        private Long sumInt;
+        private Integer sumDec;
+        private Long curSumAvailableInt;
+        private Integer curSumAvailableDec;
+        private MoneyAccountActStatus active;
+        private CreditCard creditCard;
+        private List<Payment> payments;
+        private List<Transaction> receivedTransactions;
+
+
+        public MoneyAccount.Builder id(Integer id) {
+            this.id = id;
+            return this;
+        }
+
+        public MoneyAccount.Builder number(Long number) {
+            this.number = number;
+            return this;
+        }
+
+        public MoneyAccount.Builder name(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public MoneyAccount.Builder sumInt(Long sumInt) {
+            this.sumInt = sumInt;
+            return this;
+        }
+
+        public MoneyAccount.Builder sumDec(Integer sumDec) {
+            this.sumDec = sumDec;
+            return this;
+        }
+
+        public MoneyAccount.Builder sumAvailableInt(Long curSumAvailableInt) {
+            this.curSumAvailableInt = curSumAvailableInt;
+            return this;
+        }
+
+        public MoneyAccount.Builder sumAvailableDec(Integer curSumAvailableDec) {
+            this.curSumAvailableDec = curSumAvailableDec;
+            return this;
+        }
+
+        public MoneyAccount.Builder active(MoneyAccountActStatus active) {
+            this.active = active;
+            return this;
+        }
+
+        public MoneyAccount.Builder creditCard(CreditCard creditCard) {
+            this.creditCard = creditCard;
+            return this;
+        }
+
+        public MoneyAccount.Builder payments(List<Payment> payments) {
+            this.payments = payments;
+            return this;
+        }
+
+        public MoneyAccount.Builder receivedTransactions(List<Transaction> receivedTransactions) {
+            this.receivedTransactions = receivedTransactions;
+            return this;
+        }
+
+        public MoneyAccount build() {
+            MoneyAccount moneyAccount = new MoneyAccount();
+            moneyAccount.setId(id);
+            moneyAccount.setNumber(number);
+            moneyAccount.setName(name);
+            moneyAccount.setSumInt(sumInt);
+            moneyAccount.setSumDec(sumDec);
+            moneyAccount.setCurSumAvailableInt(curSumAvailableInt);
+            moneyAccount.setCurSumAvailableDec(curSumAvailableDec);
+            moneyAccount.setActive(active);
+            moneyAccount.setCreditCard(creditCard);
+            moneyAccount.setPayments(payments);
+            moneyAccount.setReceivedTransactions(receivedTransactions);
+            return moneyAccount;
+        }
 
     }
 

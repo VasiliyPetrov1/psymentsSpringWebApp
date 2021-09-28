@@ -22,18 +22,12 @@ public class User implements UserDetails {
 
     @Column(length = 30)
     @NonNull
-    @NotEmpty(message = "Field username is required to be filled.")
-    @Size(min = 2, max = 30, message = "Name length should be between 2 and 30.")
     private String username;
 
     @Column(length = 30)
-    @NotEmpty(message = "Field email is required to be filled.")
-    @Email(message = "Enter valid email please.")
     private String email;
 
     @Column(length = 16)
-    @NonNull
-    @NotEmpty(message = "Field password is required to be filled.")
     @Size(min = 4, max = 16)
     private String password;
 
@@ -62,83 +56,106 @@ public class User implements UserDetails {
     @JoinColumn(name = "account_id")
     private List<CreditCardOrder> creditCardOrders;
 
-    public User(Integer id, String username, String email, boolean active, Set<Role> roles) {
-        this.id = id;
-        this.username = username;
-        this.email = email;
-        this.active = active;
-        this.roles = roles;
-    }
-
-    public User(String username, String email, String password, boolean active, Set<Role> roles) {
-        this.username = username;
-        this.password = password;
-        this.email = email;
-        this.active = active;
-        this.roles = roles;
-    }
-
-    public User(Integer id, @NonNull String username, String email, @NonNull String password) {
+    public User(Integer id, @NonNull String username, String email, @Size(min = 4, max = 16) String password,
+                boolean hasOrderOnCheck, boolean active, boolean hasBlockedAccount, Set<Role> roles,
+                List<CreditCard> creditCards, List<CreditCardOrder> creditCardOrders) {
         this.id = id;
         this.username = username;
         this.email = email;
         this.password = password;
-    }
-
-    public User(String username, String email, String password) {
-        this.username = username;
-        this.email = email;
-        this.password = password;
+        this.hasOrderOnCheck = hasOrderOnCheck;
+        this.active = active;
+        this.hasBlockedAccount = hasBlockedAccount;
+        this.roles = roles;
+        this.creditCards = creditCards;
+        this.creditCardOrders = creditCardOrders;
     }
 
     public User() {
 
     }
-
-    public static Builder builder() {
-        return new Builder();
+    public static User.Builder builder() {
+        return new User.Builder();
     }
 
     public static class Builder {
 
+        private Integer id;
         private String username;
         private String email;
         private String password;
         private boolean active;
         private boolean hasOrderOnCheck;
         private boolean hasBlockedAccount;
-        private Set<Role> roles = new HashSet<>();;
+        private Set<Role> roles = new HashSet<>();
+        private List<CreditCard> creditCards;
+        private List<CreditCardOrder> creditCardOrders;
 
-        public Builder withUsername(String username) {
+        public User.Builder id(Integer id) {
+            this.id = id;
+            return this;
+        }
+
+        public User.Builder username(String username) {
             this.username = username;
             return this;
         }
 
-        public Builder password(String password) {
+        public User.Builder password(String password) {
             this.password = password;
             return this;
         }
 
-        public Builder active(boolean active) {
+        public User.Builder email(String email) {
+            this.email = email;
+            return this;
+        }
+
+        public User.Builder active(boolean active) {
             this.active = active;
             return this;
         }
 
-        public Builder initRegistrationDetails(String username, String email, String password) {
+        public User.Builder hasBlockedAccount(boolean hasBlockedAccount) {
+            this.hasBlockedAccount = hasBlockedAccount;
+            return this;
+        }
+
+        public User.Builder hasOrderOnCheck(boolean hasOrderOnCheck) {
+            this.hasOrderOnCheck = hasOrderOnCheck;
+            return this;
+        }
+
+        public User.Builder roleSet(Set<Role> roleSet) {
+            this.roles = roleSet;
+            return this;
+        }
+
+        public User.Builder creditCards(List<CreditCard> creditCards) {
+            this.creditCards = creditCards;
+            return this;
+        }
+
+        public User.Builder creditCardOrders(List<CreditCardOrder> orders) {
+            this.creditCardOrders = orders;
+            return this;
+        }
+
+        public User.Builder initRegistrationDetails(String username, String email, String password) {
             this.username = username;
             this.email = email;
             this.password = password;
             return this;
         }
 
-        public Builder initFlagsDefault() {
+        public User.Builder initFlagsDefault() {
             this.hasBlockedAccount = false;
             this.hasOrderOnCheck = false;
             this.active = true;
             return this;
         }
 
-        public Builder roles(Role ... roleArgs) {
+        public User.Builder roles(Role ... roleArgs) {
             for (Role curRole : roleArgs) {
                 roles.add(curRole);
             }
@@ -147,6 +164,7 @@ public class User implements UserDetails {
 
         public User build() {
             User user = new User();
+            user.setId(id);
             user.setUsername(username);
             user.setEmail(email);
             user.setPassword(password);
@@ -154,6 +172,8 @@ public class User implements UserDetails {
             user.setHasBlockedAccount(hasBlockedAccount);
             user.setHasOrderOnCheck(hasOrderOnCheck);
             user.setRoles(roles);
+            user.setCreditCards(creditCards);
+            user.setCreditCardOrders(creditCardOrders);
             return user;
         }
 

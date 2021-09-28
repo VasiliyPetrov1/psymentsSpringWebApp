@@ -58,7 +58,7 @@
         <div class="row justify-content-start mt-2">
         <div class="container mt-2 mb-2 mr-2 ml-2 pt-1 pb-1" style="width: 22em" th:each="curCardDto : ${creditCardDtos}">
         <div class="card pr-2 pl-2 pt-1 pb-2 mt-2 mb-2" style="background-image: url(/images/space.png); background-size: cover;
-        width: 20em; color: white; font-family: 'Roboto Thin'; font-size: 18px; font-weight: 700;">
+        width: 18em; color: white; font-family: 'Roboto Thin'; font-size: 18px; font-weight: 700;">
             <p class="crCardText mt-2 mr-1 ml-1" th:text="${curCardDto.getNumber()}"></p>
             <div class="row justify-content-between mt-2 mr-1 ml-1 crCardText">
                 <p th:text="${curCardDto.getCvv()}"></p>
@@ -67,12 +67,12 @@
             <div class="row justify-content-between mt-2 mr-1 ml-1 crCardText">
                 <p th:text="${curCardDto.getSumAvailableString()} + 'UAH'"></p>
                 <div th:if="${curCardDto.isVisa()}" class="paymentSysLogo mb-1"
-                     style="width: 65px; height: 50px; background-size: contain; background-image: url(/images/visaLogo.png); background-repeat: no-repeat"></div>
+                     style="width: 80px; height: 50px; background-size: contain; background-image: url(/images/visaLogo.png); background-repeat: no-repeat"></div>
                 <div th:if="${curCardDto.isMasterCard()}"class="paymentSysLogo mb-1"
-                     style="width: 65px; height: 50px; background-size: contain; background-image: url(/images/masterCardLogo.png); background-repeat: no-repeat"></div>
+                     style="width: 80px; height: 50px; background-size: contain; background-image: url(/images/masterCardLogo.png); background-repeat: no-repeat"></div>
             </div>
         </div>
-            <div class="row justify-content-start align-items-center ml-3 mt-2 mb-2">
+            <div class="row justify-content-start align-items-center mt-2 mb-2" style="margin-left: 0.5em">
                 <form th:method="GET"
                       th:action="@{/app/moneyAccount/{moneyAccId}(moneyAccId = ${curCardDto.getMoneyAccountId()})}">
                     <input type="submit" th:value="#{relAcc}" class="btn btn-primary mr-1 ml-1">

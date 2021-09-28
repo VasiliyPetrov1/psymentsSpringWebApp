@@ -10,6 +10,26 @@
           crossorigin="anonymous">
     <link href="../static/css/style.css" rel="stylesheet">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        .emphText {
+            font-weight: 700;
+        }
+        .roundButton {
+            width: 50px;
+            height: 50px;
+            border-radius: 20px;
+            background-size: cover;
+            border: 1px solid #788;
+        }
+        .cGreen {
+            font-weight: 500;
+            color: #283;
+        }
+        .cRed {
+            font-weight: 500;
+            color: red;
+        }
+    </style>
 </head>
 <body>
 <nav class="navbar navbar-light navbar-expand-lg bg-dark fixed-top text-white" style="height:5em">
@@ -89,19 +109,18 @@
                     </div>
                     <div class="col">
                         <a th:href="@{/app/payment/paymentDetails/{paymentNum}(paymentNum = ${curPaymentDto.getNumber()})}">
-                            <div class="roundButton ml-1 mr-1" style="width: 50px;height: 50px;border-radius: 20px;background-size: cover;
-                    border: 1px solid #788; background-image: url(/images/paymentDetLogo.jpg)"></div>
+                            <div class="roundButton ml-1 mr-1" style="background-size: cover; background-image: url(/images/paymentDetLogo.jpg)"></div>
                         </a>
                     </div>
                 </div>
                 <div class="row pl-1 pr-1 mt-1 mb-1">
                     <div class="col">
                         <p class="emphText" th:text="#{payedSumLabel}">Payed sum:</p>
-                        <p class="cRed" style="font-weight: 500; color: red;" th:text="${curPaymentDto.getPayedSumString() + 'UAH'}"></p>
+                        <p class="cRed" th:text="${curPaymentDto.getPayedSumString() + 'UAH'}"></p>
                     </div>
                     <div class="col">
                         <p class="emphText"  th:text="#{comissionLabel}">Comission:</p>
-                        <p class="cRed" style="font-weight: 500; color: red;" th:text="${curPaymentDto.getComissionString() + 'UAH'}"></p>
+                        <p class="cRed" th:text="${curPaymentDto.getComissionString() + 'UAH'}"></p>
                     </div>
                 </div>
                 <div class="row pl-1 pr-1 mt-1 mb-1">
@@ -159,7 +178,7 @@
             <div th:each="curPaymentDto : ${receivedPaymentDtos}"
                  class="col-3 mt-2 mb-2 pr-2 pl-2" style="border: 1px solid #666;
                  box-sizing: border-box; border-radius: 3px">
-                <h4 th:text="#{paymOfNum} + ${curPaymentDto.getNumber()}" ></h4>
+                <h4 th:text="#{paymOfNum} + ${curPaymentDto.getNumber()}"></h4>
                 <div class="row pl-1 pr-1 mt-1 mb-1">
                     <div class="col">
                         <p class="emphText" th:text="#{statusLabel}">Status:</p>
@@ -168,19 +187,18 @@
                     </div>
                     <div class="col">
                         <a th:href="@{/app/payment/paymentDetails/{paymentNum}(paymentNum = ${curPaymentDto.getNumber()})}">
-                            <div class="roundButton ml-1 mr-1" style="width: 50px;height: 50px;border-radius: 20px;background-size: cover;
-                    border: 1px solid #788; background-image: url(/images/paymentDetLogo.jpg)"></div>
+                            <div class="roundButton ml-1 mr-1" style="background-size: cover; background-image: url(/images/paymentDetLogo.jpg)"></div>
                         </a>
                     </div>
                 </div>
                 <div class="row pl-1 pr-1 mt-1 mb-1">
                     <div class="col">
                         <p class="emphText" th:text="#{payedSumLabel}">Payed sum:</p>
-                        <p class="cGreen" style="color: #283; font-weight: 500" th:text="${curPaymentDto.getPayedSumString()}"></p>
+                        <p class="cGreen" th:text="${curPaymentDto.getPayedSumString()}"></p>
                     </div>
                     <div class="col">
                         <p class="emphText" th:text="#{comissionLabel}">Comission:</p>
-                        <p class="cGreen" style="color: #283; font-weight: 500" th:text="${curPaymentDto.getComissionString()}"></p>
+                        <p class="cGreen" th:text="${curPaymentDto.getComissionString()}"></p>
                     </div>
                 </div>
                 <div class="row pl-1 pr-1 mt-1 mb-1">

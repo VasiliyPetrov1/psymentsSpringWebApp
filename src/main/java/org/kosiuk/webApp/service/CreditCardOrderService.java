@@ -57,18 +57,18 @@ public class CreditCardOrderService {
                         (creditCardOrderDto.isMasterCard() ? PaymentSystem.MASTERCARD : null);
 
         // Creating composite primary key for order
-        CreditCardOrderId orderId = new CreditCardOrderId();
-        orderId.setAccountId(userId);
-        orderId.setCreditCardOrderId(addPropService.getNextCreditCardOrderIdVal());
-
-        CreditCardOrder order = new CreditCardOrder(orderId,
-                OrderStatus.ON_CHECK, creditCardOrderDto.getMessage(),
-                paymentSystem);
+        CreditCardOrderId orderId = new CreditCardOrderId(userId, addPropService.getNextCreditCardOrderIdVal());
 
         User user = userRepository.findById(userId).get();
-
         user.setHasOrderOnCheck(true);
-        order.setUser(user);
+
+        CreditCardOrder order = CreditCardOrder.builder()
+                .id(orderId)
+                .orderStatus(OrderStatus.ON_CHECK)
+                .message(creditCardOrderDto.getMessage())
+                .desPaymentSystem(paymentSystem)
+                .user(user)
+                .build();
 
         creditCardOrderRepository.save(order);
         return order;

@@ -58,7 +58,8 @@ public class CreditCard implements MoneyIntDecOperator {
 
     public CreditCard(CreditCardId creditCardId, @NonNull Long number, @NonNull Long sumAvailableInt,
                       @NonNull Integer sumAvailableDec, @NonNull Integer cvv, @NonNull LocalDate expireDate,
-                      @NonNull PaymentSystem paymentSystem) {
+                      @NonNull PaymentSystem paymentSystem, User user, MoneyAccount moneyAccount,
+                      CreditCardOrder creditCardOrder) {
         this.creditCardId = creditCardId;
         this.number = number;
         this.sumAvailableInt = sumAvailableInt;
@@ -66,17 +67,9 @@ public class CreditCard implements MoneyIntDecOperator {
         this.cvv = cvv;
         this.expireDate = expireDate;
         this.paymentSystem = paymentSystem;
-    }
-
-    public CreditCard(@NonNull Long number, @NonNull Long sumAvailableInt,
-                      @NonNull Integer sumAvailableDec, @NonNull Integer cvv, @NonNull LocalDate expireDate,
-                      @NonNull PaymentSystem paymentSystem) {
-        this.number = number;
-        this.sumAvailableInt = sumAvailableInt;
-        this.sumAvailableDec = sumAvailableDec;
-        this.cvv = cvv;
-        this.expireDate = expireDate;
-        this.paymentSystem = paymentSystem;
+        this.user = user;
+        this.moneyAccount = moneyAccount;
+        this.creditCardOrder = creditCardOrder;
     }
 
     public CreditCard() {
@@ -173,5 +166,89 @@ public class CreditCard implements MoneyIntDecOperator {
     @Override
     public int getOperatedSumDec() {
         return getSumAvailableDec();
+    }
+
+    public static CreditCard.Builder builder() {
+        return new CreditCard.Builder();
+    }
+
+    public static class Builder {
+
+        private CreditCardId creditCardId;
+        private Long number;
+        private Long sumAvailableInt;
+        private Integer sumAvailableDec;
+        private Integer cvv;
+        private LocalDate expireDate;
+        private PaymentSystem paymentSystem;
+        private User user;
+        private MoneyAccount moneyAccount;
+        private CreditCardOrder creditCardOrder;
+
+        public CreditCard.Builder id(CreditCardId creditCardId) {
+            this.creditCardId = creditCardId;
+            return this;
+        }
+
+        public CreditCard.Builder number(Long number) {
+            this.number = number;
+            return this;
+        }
+
+        public CreditCard.Builder sumAvailableInt(Long sumAvailableInt) {
+            this.sumAvailableInt = sumAvailableInt;
+            return this;
+        }
+
+        public CreditCard.Builder sumAvailableDec(Integer sumAvailableDec) {
+            this.sumAvailableDec = sumAvailableDec;
+            return this;
+        }
+
+        public CreditCard.Builder cvv(Integer cvv) {
+            this.cvv = cvv;
+            return this;
+        }
+
+        public CreditCard.Builder expireDate(LocalDate expireDate) {
+            this.expireDate = expireDate;
+            return this;
+        }
+
+        public CreditCard.Builder paymentSystem(PaymentSystem paymentSystem) {
+            this.paymentSystem = paymentSystem;
+            return this;
+        }
+
+        public CreditCard.Builder user(User user) {
+            this.user = user;
+            return this;
+        }
+
+        public CreditCard.Builder moneyAccount(MoneyAccount moneyAccount){
+            this.moneyAccount = moneyAccount;
+            return this;
+        }
+
+        public CreditCard.Builder creditCardOrder(CreditCardOrder order){
+            this.creditCardOrder = order;
+            return this;
+        }
+
+        public CreditCard build() {
+            CreditCard creditCard = new CreditCard();
+            creditCard.setCreditCardId(creditCardId);
+            creditCard.setNumber(number);
+            creditCard.setSumAvailableInt(sumAvailableInt);
+            creditCard.setSumAvailableDec(sumAvailableDec);
+            creditCard.setCvv(cvv);
+            creditCard.setExpireDate(expireDate);
+            creditCard.setPaymentSystem(paymentSystem);
+            creditCard.setUser(user);
+            creditCard.setMoneyAccount(moneyAccount);
+            creditCard.setCreditCardOrder(creditCardOrder);
+            return creditCard;
+        }
+
     }
 }

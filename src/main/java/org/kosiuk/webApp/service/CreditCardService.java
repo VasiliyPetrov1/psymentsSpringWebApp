@@ -58,12 +58,21 @@ public class CreditCardService {
             addPropService.incCurMasterCardNum();
         }
         String[] yearMonthDay = expireDateString.split("-");
+        User user = userService.getUserById(ownerId);
+
         LocalDate expireDate = LocalDate.of(Integer.parseInt(yearMonthDay[0]), Integer.parseInt(yearMonthDay[1]),
                 Integer.parseInt(yearMonthDay[2]));
-        CreditCard creditCard = new CreditCard(creditCardId, number, 0L, 0, cvv, expireDate, paymentSystem);
 
-        User user = userService.getUserById(ownerId);
-        creditCard.setUser(user);
+        CreditCard creditCard = CreditCard.builder()
+                .id(creditCardId)
+                .number(number)
+                .sumAvailableInt(0L)
+                .sumAvailableDec(0)
+                .cvv(cvv)
+                .expireDate(expireDate)
+                .paymentSystem(paymentSystem)
+                .user(user)
+                .build();
 
         creditCardRepository.save(creditCard);
         return creditCard;
@@ -77,12 +86,8 @@ public class CreditCardService {
         } else if (isMasterCard) {
             number = MASTERCARD_CODE * ONE_TRILLION + addPropService.getNextCurMasterCardNum();
         }
-        creditCardConfirmationDto.setNumber(number);
-        creditCardConfirmationDto.setVisa(isVisa);
-        creditCardConfirmationDto.setMasterCard(isMasterCard);
-        creditCardConfirmationDto.setCvv(random.nextInt(899) + 100);
-        creditCardConfirmationDto.setExpireDateString(LocalDate.now().plusYears(3).toString());
-        return creditCardConfirmationDto;
+        return new CreditCardConfirmationDto(number,  random.nextInt(899) + 100,
+                LocalDate.now().plusYears(3).toString(), isVisa, isMasterCard);
     }
 
     public Page<CreditCard> getAllUsersCreditCardsPage(int pageNumber, User user) {

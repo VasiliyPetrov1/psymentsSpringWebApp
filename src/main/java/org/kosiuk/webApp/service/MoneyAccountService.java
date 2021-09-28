@@ -54,7 +54,17 @@ public class MoneyAccountService {
 
     @Transactional(propagation = Propagation.REQUIRED)
     public MoneyAccount createMoneyAccount(Long number, String name) {
-        MoneyAccount moneyAccount = new MoneyAccount(number, name, 0L, 0, 0L, 0, MoneyAccountActStatus.ACTIVE);
+        MoneyAccount moneyAccount = MoneyAccount.builder()
+                .number(number)
+                .name(name)
+                .sumInt(0L)
+                .sumDec(0)
+                .sumAvailableInt(0L)
+                .sumAvailableDec(0)
+                .active(MoneyAccountActStatus.ACTIVE)
+                .build();
+
+        //MoneyAccount moneyAccount = new MoneyAccount(number, name, 0L, 0, 0L, 0, MoneyAccountActStatus.ACTIVE);
         moneyAccountRepository.save(moneyAccount);
         addPropService.incCurMoneyAccountNum();
         isAnyMoneyAccOnCreation = false;

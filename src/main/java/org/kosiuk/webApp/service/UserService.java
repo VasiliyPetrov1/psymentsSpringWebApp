@@ -50,9 +50,11 @@ public class UserService implements UserDetailsService {
     public User createUser(UserCreationDto userCreationDto) throws NotCompatibleRolesException {
         Set<Role> roleSet = userCreationDto.getCheckedRoles();
 
-        User user = new User(userCreationDto.getUsername(), userCreationDto.getEmail(), userCreationDto.getPassword(),
-                true, roleSet);
-
+        User user = User.builder()
+                .initRegistrationDetails(userCreationDto.getUsername(), userCreationDto.getEmail(), userCreationDto.getPassword())
+                .initFlagsDefault()
+                .roleSet(roleSet)
+                .build();
 
         try {
             save(user);
@@ -64,10 +66,11 @@ public class UserService implements UserDetailsService {
     }
 
     public User registerUser(UserRegistrationDto userRegDto) {
-        User user = new User(userRegDto.getUsername(), userRegDto.getEmail(), userRegDto.getPassword());
-        user.setActive(true);
-        user.setHasBlockedAccount(false);
-        user.setRoles(Collections.singleton(Role.USER));
+        User user = User.builder()
+                .initRegistrationDetails(userRegDto.getUsername(), userRegDto.getEmail(), userRegDto.getPassword())
+                .initFlagsDefault()
+                .roles(Role.USER)
+                .build();
         save(user);
         return user;
     }
@@ -99,8 +102,14 @@ public class UserService implements UserDetailsService {
         userRepository.updateUser(userEditionDto.getId(), userEditionDto.getUsername(), userEditionDto.getEmail(),
                 userEditionDto.isActive());
 
-        return new User(userEditionDto.getId(), userEditionDto.getUsername(), userEditionDto.getEmail(),
-                userEditionDto.isActive(), roleSet);
+        return User.builder()
+                .id(userEditionDto.getId())
+                .username(userEditionDto.getUsername())
+                .email(userEditionDto.getEmail())
+                .active(userEditionDto.isActive())
+                .roleSet(roleSet)
+                .build();
+
     }
 
     public Page<User> getAllUsersPage(int pageNumber) {
@@ -113,8 +122,12 @@ public class UserService implements UserDetailsService {
         userRepository.updateUserLimited(userLimEditionDto.getId(), userLimEditionDto.getUsername(),
                 userLimEditionDto.getEmail(), userLimEditionDto.getPassword());
 
-        return new User(userLimEditionDto.getId(), userLimEditionDto.getUsername(),
-                userLimEditionDto.getEmail(), userLimEditionDto.getPassword());
+        return User.builder()
+                .id(userLimEditionDto.getId())
+                .username(userLimEditionDto.getUsername())
+                .email(userLimEditionDto.getEmail())
+                .password(userLimEditionDto.getPassword())
+                .build();
     }
 
     public void deleteUser(Integer id) {

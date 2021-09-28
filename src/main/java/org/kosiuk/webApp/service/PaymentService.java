@@ -135,7 +135,7 @@ public class PaymentService {
     public PaymentDto convertPaymentToDto(Payment payment) {
 
         LocalDateTime paymentTime = payment.getTime();
-        String timeString = paymentTime.toString().substring(0, 19);
+        String timeString = paymentTime.toString().substring(0, 19).replaceFirst("T", " ");
 
         MoneyIntDecToStringAdapter paymentMoneyAdapter = new MoneyIntDecToStringAdapter(payment);
 
@@ -153,7 +153,7 @@ public class PaymentService {
 
     public PaymentDetailsDto convertPaymentToPaymentDetailsDto(Payment payment, ResourceBundle rb) {
         LocalDateTime paymentTime = payment.getTime();
-        String timeString = paymentTime.toString().substring(0, 19);
+        String timeString = paymentTime.toString().substring(0, 19).replaceFirst("T", " ");
         String senderAccountName = payment.getMoneyAccount().getName();
         String receiverAccountName = "";
         String movedSumString = "";

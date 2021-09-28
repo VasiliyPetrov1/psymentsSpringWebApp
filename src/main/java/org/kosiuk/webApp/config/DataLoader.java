@@ -33,7 +33,9 @@ public class DataLoader implements ApplicationRunner {
         }
         Iterable<User> users = userRepository.findAll();
         if (!users.iterator().hasNext()) {
-            User user = new User("Oleksii", "oleksii_kosiuk@outlook.com", "20032002");
+            User user = User.builder()
+                    .initRegistrationDetails("Oleksii", "oleksii_kosiuk@outlook.com", "20032002")
+                    .build();
             user.setActive(true);
             user.setHasBlockedAccount(false);
             user.setRoles(Collections.singleton(Role.ADMIN));
